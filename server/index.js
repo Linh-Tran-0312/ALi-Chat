@@ -58,12 +58,18 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
             });
             socket.on('createNewConversation', async (formData) => {
                 const data = await createNewConversation(formData);
-                io.to(socket.id).emit('message', data)
+                io.to(socket.id).emit('message', data);
+                const recipients = formData.recipients;
+                recipients.forEach(person => {
+                    if (person !== formData.sender) {
+                        io.to(person).emit('message', data);
+                    }
+                })
             })
             socket.on('getConversations', async (userId) => {
                 const conversationList = await getAllConversations(userId);
                 console.log(conversationList);
-                io.to(socket.id).emit('sendConversations', conversationList)
+                io.to(socket.id).emit('sendConversations', conversationList);
             });
             socket.on('getMessages', async (conversationId) => {
                 const messages = await getAllMessages(conversationId);

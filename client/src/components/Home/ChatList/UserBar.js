@@ -9,7 +9,7 @@ import { BorderTextField, useStyle } from './style';
 
 
 
-const UserBar = ({ selectProfile, handleSearchTerm, hideYourScreen, searchTerm }) => {
+const UserBar = ({ handleSearchTerm, searchTerm }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
     const typingTimeoutRef = useRef(null);
 
@@ -48,7 +48,7 @@ const UserBar = ({ selectProfile, handleSearchTerm, hideYourScreen, searchTerm }
                         <Typography variant="h5"  >{`${user.result.lastname} ${user.result.firstname}`}</Typography>
                     </Grid>
                     <Grid item xs={3} >
-                        <Menu logout={logout} selectProfile={selectProfile} hideYourScreen={hideYourScreen} />
+                        <Menu logout={logout} />
                     </Grid>
                 </Grid>
             </Box>

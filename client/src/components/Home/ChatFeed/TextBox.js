@@ -3,7 +3,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { createFirstMessage } from '../../../actions/chat';
+import { sendMessage } from '../../../actions/chat';
 import { SocketContext } from './../../../context.socket';
 import { useStyle } from './style';
 
@@ -23,7 +23,8 @@ const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
     const classes = useStyle();
     const dispatch = useDispatch();
-    const socket = useContext(SocketContext)
+    const socket = useContext(SocketContext);
+
     const setNewMessage = (e) => {
         setText(e.target.value)
         setFormData({
@@ -40,7 +41,7 @@ const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
         if(conversationId) {
         
             socket.emit('sendMessage', formData, clear());
-           
+            dispatch(sendMessage(formData))
             setText("")
         }
         else {

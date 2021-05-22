@@ -2,12 +2,16 @@ import { Avatar, Button, Grid, Typography } from '@material-ui/core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import React from 'react';
 import { StyledBadge, StyledBox, useStyle } from './style';
+import { selectProfile } from '../../../actions/user';
+import { useDispatch } from 'react-redux';
 
 
-const FriendBar = ({friend, selectProfile}) => {
+const FriendBar = ({friend }) => {
     const classes = useStyle();
+    const dispatch = useDispatch();
+
     const handleSelectProfile = () => {
-        return selectProfile(friend);
+       dispatch(selectProfile(friend));
     }
     return (
 

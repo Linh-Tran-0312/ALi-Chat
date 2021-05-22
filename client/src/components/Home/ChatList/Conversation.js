@@ -1,9 +1,13 @@
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { ListItem, ListItemAvatar, ListItemIcon, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import FiberNewIcon from '@material-ui/icons/FiberNew';
 import Avatar from '../Avatar';
-
+import { selectConversation } from '../../../actions/chat';
+import { selectUserResult } from '../../../actions/user';
+import { useSelector } from 'react-redux';
 const useStyle = makeStyles(() => ({
     conversation: {
         height: 80,
@@ -35,13 +39,20 @@ const useStyle = makeStyles(() => ({
         '& .MuiListItemText-secondary': {
             fontWeight: 'bold'
         }
+    },
+    selected : {
+        backgroundColor: '#dfe5ff'
     }
+
 }))
 
-const Conversation = ({ conversation, selectConversation, user, selectUserResult, isSearchResult }) => {
+const Conversation = ({ conversation,  user, isSearchResult }) => {
     const classes = useStyle();
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
-    let name, lastMessage
+    const currentConversation = useSelector(state => state.conversation);
+    const dispatch = useDispatch();
+    let name ="" ;
+    let lastMessage ="" ;
     if(conversation) {
         const partner = conversation?.peopleInfo?.find(x => x._id !== currentUserId);
         name = `${partner.firstname} ${partner.lastname}`
@@ -55,17 +66,15 @@ const Conversation = ({ conversation, selectConversation, user, selectUserResult
     }
     const handleSelect = () => {
         if (conversation) {
-            selectConversation(conversation);
-
+            dispatch(selectConversation(conversation));
         }
         if (user) {
-
-            selectUserResult(user);
+            dispatch(selectUserResult(user));
         }
     }
     if (!isSearchResult) {
         return (
-            <ListItem onClick={handleSelect} className={classes.conversation} alignItems="center">
+            <ListItem onClick={handleSelect} className={currentConversation?._id !== conversation._id ? classes.conversation : `${classes.conversation} ${classes.selected}`} alignItems="center">
                 <ListItemAvatar>
                     <Avatar url="/DSC_0913.jpg" width="50" height="50" isOnline />
                 </ListItemAvatar>

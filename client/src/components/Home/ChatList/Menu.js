@@ -1,16 +1,17 @@
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import DesktopIcon from '@material-ui/icons/DesktopAccessDisabled';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { selectProfile } from '../../../actions/user';
 
-const SimpleMenu = ({logout, selectProfile, hideYourScreen}) => {
+const SimpleMenu = ({logout}) => {
     
     const [anchorEl, setAnchorEl] = React.useState(null);
-
+    const dispatch = useDispatch();
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -20,15 +21,11 @@ const SimpleMenu = ({logout, selectProfile, hideYourScreen}) => {
     const handleGetProfile = () => {
         const user = JSON.parse(localStorage.getItem('profile')).result;
         setAnchorEl(null);
-        return selectProfile(user);
+        dispatch(selectProfile(user));
     }
     const handleLogout = () => {
         return logout()
     };
-    const handleHideYourScreen = () => {
-        setAnchorEl(null);
-        return hideYourScreen()
-    }
 
     return (
         <div>
@@ -44,7 +41,6 @@ const SimpleMenu = ({logout, selectProfile, hideYourScreen}) => {
             >
                 <MenuItem onClick={handleGetProfile}>Profile &nbsp; <InfoOutlinedIcon /></MenuItem>
                 <MenuItem onClick={handleLogout}>Logout &nbsp;<ExitToAppIcon /></MenuItem>
-                <MenuItem onClick={handleHideYourScreen}>Hide screen &nbsp;<DesktopIcon /></MenuItem>
             </Menu>
         </div>
     );

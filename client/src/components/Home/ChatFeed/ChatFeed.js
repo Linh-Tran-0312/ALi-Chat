@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector} from 'react-redux';
 import { getAllMessages, getPreMessages } from '../../../actions/chat';
 import { SocketContext } from '../../../context.socket';
 import FriendBar from './FriendBar';
@@ -7,12 +7,14 @@ import Messages from './Messages';
 import { useStyle } from './style';
 import TextBox from './TextBox';
 
-const  ChatFeed = ({ conversation, userResult, selectProfile, setSearchTerm }) => {
+const  ChatFeed = ({ setSearchTerm }) => {
   
     const classes = useStyle();
     const dispatch = useDispatch();
-    const [ loadMore, setLoadMore ] = useState({ loaded: false, chatPoint: null})
+    const loadedMore = useRef(false)
     const socket = useContext(SocketContext);
+    const conversation = useSelector(state => state.conversation);
+    const userResult = useSelector(state => state.userResult);
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
     let currentFriend = {};
     
@@ -26,10 +28,11 @@ const  ChatFeed = ({ conversation, userResult, selectProfile, setSearchTerm }) =
     } else {
         currentFriend = userResult
     }
-
+    
+  
     useEffect(() => {
-     setLoadMore(({ loaded: false, chatPoint: null}))
-    },[conversation])
+        loadedMore.current = false;
+    })
 
     useEffect(() => {
         socket.on('sendMessages', messages => {
@@ -43,14 +46,14 @@ const  ChatFeed = ({ conversation, userResult, selectProfile, setSearchTerm }) =
             console.log(preMessages.length);
         })
     },[])
-
+console.log('chatfeed render')
     return(
         <div className={classes.chatfeed}>
-            <FriendBar friend={currentFriend} selectProfile={selectProfile}/>
-            <Messages  loadMore={loadMore} setLoadMore={setLoadMore}/>
+            <FriendBar friend={currentFriend} />
+            <Messages  loadedMore={loadedMore} />
             <TextBox conversationId={conversation._id} friendId={currentFriend._id}  setSearchTerm={setSearchTerm} />
         </div>
     )
 }
 
-export default ChatFeed;
+export default React.memo(ChatFeed);

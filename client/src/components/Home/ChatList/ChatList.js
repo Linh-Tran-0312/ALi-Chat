@@ -8,7 +8,7 @@ import Conversations from './Conversations';
 import { useStyle } from './style';
 import UserBar from './UserBar';
 
-const ChatList = ({ selectConversation, selectProfile, selectUserResult, hideYourScreen, searchTerm, setSearchTerm, newConversation }) => {
+const ChatList = ({ searchTerm, setSearchTerm}) => {
     
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
     const lastMessage = useSelector(state => state.lastMessage);
@@ -32,7 +32,7 @@ const ChatList = ({ selectConversation, selectProfile, selectUserResult, hideYou
         })
     },[]);  
     
-  
+  console.log('chatlist render')
    
     const handleSearchTerm = (formData) => {
         setSearchTerm(formData.searchTerm);      
@@ -41,12 +41,10 @@ const ChatList = ({ selectConversation, selectProfile, selectUserResult, hideYou
     return (
         <div className={classes.chatlist}>
            <UserBar 
-            selectProfile={selectProfile} 
             handleSearchTerm={handleSearchTerm}
-            hideYourScreen={hideYourScreen}
             searchTerm={searchTerm}
             />     
-           <Conversations selectConversation={selectConversation} searchTerm={searchTerm} selectUserResult={selectUserResult}/>
+           <Conversations  searchTerm={searchTerm}/>
         </div>
     )
 };

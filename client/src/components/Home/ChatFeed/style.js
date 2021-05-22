@@ -43,18 +43,20 @@ export const useStyle = makeStyles((theme) => ({
   theirmessage_box : {
   width: '100%',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
   justifyContent: 'flex-start',
+  alignItems: 'flex-start'
   },
   mymessage_box : {
     width: '100%',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column-reverse',
     justifyContent: 'flex-end',
+    alignItems: 'flex-end'
   },
   message_time : {
-    padding: 10,
-    height: 35,
+  
+     padding: 10,
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLastMessage } from '../../actions/chat';
+import { getLastMessage, selectConversation } from '../../actions/chat';
+import { selectProfile, selectUserResult } from '../../actions/user';
 import { SocketContext } from '../../context.socket';
 import AppWall from './AppIntro/AppWall';
 import ChatFeed from './ChatFeed/ChatFeed';
@@ -11,46 +12,43 @@ import { useStyle } from './style';
 
 const Home = () => {
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
-    const [ conversation, setConversation ] = useState("");
-    const [ profile, setProfile ] = useState("");
-    const [ userResult, setUserResult ] = useState("");
+    /* const [ conversation, setConversation ] = useState(""); */
+  /*   const [ profile, setProfile ] = useState("");
+    const [ userResult, setUserResult ] = useState(""); */
 
- 
+  
     const [ searchTerm, setSearchTerm ] = useState("");
 
     const lastMessage = useSelector(state => state.lastMessage)
-    
+    const conversation = useSelector(state => state.conversation)
+    const profile = useSelector(state => state.profile);
+    const userResult = useSelector(state => state.userResult);
+
     const classes = useStyle();
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
  
 
-    const selectConversation = (currentConversation) => {
+   /*  const selectConversation = (currentConversation) => {
         console.log(currentConversation._id)
         setConversation(currentConversation);
         setProfile("");
         setUserResult("");
-    }
-    const selectProfile = (user) => {       
+    } */
+/*     const selectProfile = (user) => {       
         setProfile(user);  
-        setConversation("");
+        dispatch(selectConversation(""));
         setUserResult("")
-    }
-    const selectUserResult = (user) => {
+    } */
+  /*   const selectUserResult = (user) => {
         setUserResult(user);
-        setConversation("");
+        dispatch(selectConversation(""));
         setProfile("");   
-       /*  dispatch(getMessages("")); */
-    }
-    const hideYourScreen = () => {
-        setConversation("");
-        setUserResult("");
-        setProfile("");
-    }
- 
+    } */
+
      
     useEffect(() => {
-        socket.emit('join', userId)
+        socket.emit('join', userId);
     },[]);
     
     useEffect(() => {       
@@ -58,18 +56,16 @@ const Home = () => {
     },[conversation]);
 
     useEffect(() => {
-        socket.on('message',data => {             
-            dispatch(getLastMessage(data.message));
-            if(data.conversation) {
-                selectConversation(data.conversation);
-            }          
+        socket.on('message',data => { 
+            if(data.conversation && data.message.sender === userId) {
+                setSearchTerm("");
+                dispatch(selectConversation(data.conversation));
+            }             
+            dispatch(getLastMessage(data.message));                  
         })
     },[socket]);
-    useEffect(() => {
-        socket.on('sendNewConversation', newConversation => {
-            selectConversation(newConversation)
-        })
-    })
+
+    console.log('Home render')
     useEffect(() => {
         socket.emit('getConversations', userId)
     },[lastMessage])
@@ -80,28 +76,14 @@ const Home = () => {
     return (
         
         <div className={classes.container}>
-                <ChatList
-                    selectConversation={selectConversation} 
-                    selectProfile={selectProfile} 
-                    selectUserResult={selectUserResult}
-                    hideYourScreen={hideYourScreen}
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                                 
-                />
+                <ChatList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         {
             (!conversation && !userResult) ? (
                 <AppWall profile={profile} />
             ) : (
                 <>
-                <ChatFeed                  
-                    conversation={conversation} 
-                    userResult={userResult} 
-                    setSearchTerm={setSearchTerm} 
-                               
-                    selectProfile={selectProfile}
-                />
-                <ChatInfo conversation={conversation}/>
+                <ChatFeed setSearchTerm={setSearchTerm} />
+                <ChatInfo/>
                 </> 
                 
             )

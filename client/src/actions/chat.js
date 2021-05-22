@@ -47,6 +47,15 @@ export const getAllConversations = (conversations) => async(dispatch) => {
         console.log(error.message)
     }
 };
+export const selectConversation = (conversation) => async(dispatch) => {
+    try {
+        dispatch({ type: "SELECT_CONVERSATION", payload: conversation});
+        dispatch({ type: "SELECT_USER_RESULT", payload: ""})
+        dispatch({ type: "SELECT_PROFILE", payload: ""})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 export const getAllMessages = (messages) => async(dispatch) => {
     try {
         dispatch({ type: 'FETCH_MESSAGES', payload: messages})
@@ -57,6 +66,14 @@ export const getAllMessages = (messages) => async(dispatch) => {
 export const getPreMessages = (messages) => async(dispatch) => {
     try {
         dispatch({ type: 'FETCH_PRE_MESSAGES', payload: messages})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+export const sendMessage = (message) => async(dispatch) => {
+    try {
+        dispatch({ type: 'CREATE_MESSAGE', payload: message})
     } catch (error) {
         console.log(error.message)
     }
