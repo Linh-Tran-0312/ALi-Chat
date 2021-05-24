@@ -8,5 +8,6 @@ import friends from './friends';
 import messages from './messages';
 import lastMessage from './lastMessage';
 import userResult from './userResult';
+import members from './memberSearch';
 
-export default combineReducers({ conversations, auth, profile, userResult, friends, messages, lastMessage, conversation });
+export default combineReducers({ conversations, auth, profile, userResult, friends, messages, lastMessage, conversation, members });

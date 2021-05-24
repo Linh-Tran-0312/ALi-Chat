@@ -19,3 +19,5 @@ export const updateConversation = (id, conversation) => API.patch(`/chats/conver
 
 export const fetchMessages = (id) => API.get(`/chats/messages/${id}`);
 export const createFirstMessage = (formData) => API.post('/chats/message', formData);
+
+export const fetchMembers = (formData) => API.post('/profile/member/search', formData)

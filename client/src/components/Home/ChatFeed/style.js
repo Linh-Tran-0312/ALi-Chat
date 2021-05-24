@@ -72,6 +72,7 @@ export const useStyle = makeStyles((theme) => ({
     borderRadius: "17px",
     backgroundColor: '#d6dce5',
     fontFamily: 'Open Sans',
+    wordBreak: 'break-word'
   },
   mymessage_content: {
     maxWidth: '80%',
@@ -85,6 +86,7 @@ export const useStyle = makeStyles((theme) => ({
     backgroundColor: '#8faadc',
     color: 'white',
     fontFamily: 'Open Sans',
+    wordBreak: 'break-word'
   },
   message_image : {
     marginRight: 18,

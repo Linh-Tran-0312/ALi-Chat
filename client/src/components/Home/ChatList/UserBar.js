@@ -1,16 +1,18 @@
-import { Box, Button, Grid, InputAdornment, Typography } from '@material-ui/core';
+import { Box, Button, Grid, InputAdornment, Typography, Modal } from '@material-ui/core';
 import { GroupAdd as GroupAddIcon, Search as SearchIcon } from '@material-ui/icons';
 import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import Avatar from '../Avatar';
 import Menu from './Menu';
+import ModalCreateGroup from './ModalCreateGroup/ModalCreateGroup';
 import { BorderTextField, useStyle } from './style';
 
 
 
 const UserBar = ({ handleSearchTerm, searchTerm }) => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
+    
     const typingTimeoutRef = useRef(null);
 
     const history = useHistory();
@@ -36,7 +38,8 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
             handleSearchTerm(formData);
         }, 500);
     }
-
+    
+ 
     return (
         <div className={classes.userinfo}  >
             <Box my={4} width="75%">
@@ -77,9 +80,7 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
                     <Box width={1} my={2} >
                         <Grid container direction="row" justify="center" alignItems="center">
                             <Grid item xs={12} container direction="row" justify="center" alignItems="center" >
-                                <Button variant="contained" size="medium" color="primary" startIcon={<GroupAddIcon fontSize="large" />} >
-                                    Create group chat
-                                </Button>
+                             <ModalCreateGroup />
                             </Grid>
                         </Grid>
                     </Box>

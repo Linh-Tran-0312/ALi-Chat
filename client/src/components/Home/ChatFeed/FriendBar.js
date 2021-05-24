@@ -6,7 +6,7 @@ import { selectProfile } from '../../../actions/user';
 import { useDispatch } from 'react-redux';
 
 
-const FriendBar = ({friend }) => {
+const FriendBar = ({friend, groupName }) => {
     const classes = useStyle();
     const dispatch = useDispatch();
 
@@ -32,7 +32,7 @@ const FriendBar = ({friend }) => {
                             </StyledBadge>
                         </Grid>
                         <Grid item xs={7} container direction="row" justify="flex-start" alignItems="center">
-                            <Grid item xs={12}><Typography variant="h4" color="primary" fontWeight="fontWeightBold">{`${friend.firstname} ${friend.lastname}`}</Typography></Grid>
+                            <Grid item xs={12}><Typography variant="h4" color="primary" fontWeight="fontWeightBold">{ groupName ? `${groupName}` :`${friend.firstname} ${friend.lastname}`}</Typography></Grid>
                         </Grid>
                     </Grid>
                     <Grid item xs={4} container direction="row" justify="flex-end" alignItems="center"><Button onClick={handleSelectProfile}><MoreHorizIcon  /></Button></Grid>

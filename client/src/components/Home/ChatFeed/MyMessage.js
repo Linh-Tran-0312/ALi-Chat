@@ -20,40 +20,41 @@ const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
             minute = `0${minute}`
         }
         timeString = `${hour}:${minute}`;
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const day = time.getDate().toString();
         const month = months[time.getMonth()];
         const year = time.getFullYear().toString();
         dateString = `${timeString} ${month} ${day}, ${year}`
     }
-    if(!isLastMessage) {
+    if (!isLastMessage) {
         timeString = ""
-    } 
+    }
+
     return (
-       
-            <Box width="100%" className={classes.message} my={1} ref={forwardRef}>
-                <Grid container style={{ minHeight: 50 }} direction="row" justify="center" alignItems="flex-start">
-                    <Grid item xs={11} className={classes.mymessage_box}>
-                        <div className={isLastMessage ? classes.message_time : null}>
-                            {  !isNaN(time.getTime()) ?  `${timeString}` :   "Sending..." }
-                        </div>
-                        {message?.attachment ? (<img src={message.attachment}
 
-                            className={classes.message_image}
+        <Box width="100%" className={classes.message} my={1} ref={forwardRef}>
+            <Grid container style={{ minHeight: 50 }} direction="row" justify="center" alignItems="flex-start">
+                <Grid item xs={11} className={classes.mymessage_box}>
+                    <div className={isLastMessage ? classes.message_time : null}>
+                        {!isNaN(time.getTime()) ? `${timeString}` : "Sending..."}
+                    </div>
+                    {message?.attachment ? (<img src={message.attachment}
 
-                        />) : (
-                            <Tooltip title={dateString} placement="left">
-                        <div className={classes.mymessage_content}>
-                            {message?.text}
-                        </div>
+                        className={classes.message_image}
+
+                    />) : (
+                        <Tooltip title={dateString} placement="left">
+                            <div className={classes.mymessage_content}>
+                                {message?.text}
+                            </div>
                         </Tooltip>
-                        )}
-                    </Grid>
+                    )}
                 </Grid>
-            </Box>
-      
+            </Grid>
+        </Box>
 
     )
+
 };
 
 export default MyMessage;

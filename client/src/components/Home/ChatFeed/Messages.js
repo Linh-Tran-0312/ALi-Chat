@@ -48,15 +48,13 @@ const Messages = ({ loadedMore}) => {
        }
     ,[messages]);  
 
-    const keys = Object.keys(messages);
- 
 
     return(
         <div className={classes.messages} onScroll={myFunction} ref={chatTop}>
          
          {            
              messages.map((message, index )=> {
-
+               if(message.text || message.attachment) {
                 const nextMessage = index === messages.length ? null : messages[index+1];
                 const isLastMessage = index === messages.length - 1 ? true : false
                 if(message.sender === currentUserId) {
@@ -67,6 +65,7 @@ const Messages = ({ loadedMore}) => {
                     if(index == 10) return <TheirMessage key={index} isLastMessage={isLastMessage} forwardRef={chatPoint} nextMessage={nextMessage} message={message}/>;
                     return <TheirMessage key={index} isLastMessage={isLastMessage} nextMessage={nextMessage} message={message}/>
                 }
+               }             
             })
          }
          

@@ -27,26 +27,8 @@ const Home = () => {
     const classes = useStyle();
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
- 
 
-   /*  const selectConversation = (currentConversation) => {
-        console.log(currentConversation._id)
-        setConversation(currentConversation);
-        setProfile("");
-        setUserResult("");
-    } */
-/*     const selectProfile = (user) => {       
-        setProfile(user);  
-        dispatch(selectConversation(""));
-        setUserResult("")
-    } */
-  /*   const selectUserResult = (user) => {
-        setUserResult(user);
-        dispatch(selectConversation(""));
-        setProfile("");   
-    } */
-
-     
+   
     useEffect(() => {
         socket.emit('join', userId);
     },[]);

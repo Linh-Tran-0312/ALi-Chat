@@ -11,6 +11,7 @@ const socketIo = require('socket.io');
 const addMessage = require('./controllers/messageController').addMessage;
 const { getAllConversations, createNewConversation }= require('./controllers/conversationController');
 const { getAllMessages, getPreMessages } = require('./controllers/messageController');
+const { createGroupConversation } = require('./controllers/conversationController');
 
 
 const app = express();
@@ -62,6 +63,16 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
                 const recipients = formData.recipients;
                 recipients.forEach(person => {
                     if (person !== formData.sender) {
+                        io.to(person).emit('message', data);
+                    }
+                })
+            })
+            socket.on('createGroupChat', async(formData) => {
+                const data = await createGroupConversation(formData);
+                io.to(socket.id).emit('message', data);
+                const recipients = formData.people;
+                recipients.forEach(person => {
+                    if (person !== formData.host) {
                         io.to(person).emit('message', data);
                     }
                 })

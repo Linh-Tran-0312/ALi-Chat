@@ -34,3 +34,18 @@ export const selectUserResult = (user) => async(dispatch) => {
         console.log(error, error.message);
      }
  }
+ export const searchMembers = (formData) => async(dispatch) => {
+     try {
+        const { data } = await api.fetchMembers(formData);
+        dispatch({ type: "FETCH_MEMBERS", payload : data })
+     } catch (error) {
+        console.log(error, error.message);
+     }
+ }
+ export const clearSearchMembers = () => async(dispatch) => {
+    try {
+        dispatch({ type: "FETCH_MEMBERS", payload : [] })
+     } catch (error) {
+        console.log(error, error.message);
+     }
+ }

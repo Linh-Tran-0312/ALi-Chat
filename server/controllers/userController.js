@@ -143,4 +143,17 @@ UserController.searchAllUsers = async(req, res) => {
         console.log(error)
     }
 }
+UserController.searchMembers = async(req,res) => {
+    const { searchMem }= req.body;
+    try {
+        const userList = await User.aggregate([
+            {
+                $match : { $text: { $search : searchMem}}
+            }
+        ]);
+        return res.status(200).json(userList)
+    } catch (error) {
+        console.log(error)
+    }
+}
 module.exports = UserController;

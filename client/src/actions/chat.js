@@ -10,7 +10,9 @@ export const getConversations = () => async(dispatch) => {
         console.log(error.message)
     }
 }
-
+export const createGroupConversation = (formData) => async(dispatch) => {
+    
+}
 export const getMessages = (id) => async(dispatch) => {
     try {
         const { data } = await api.fetchMessages(id);

@@ -19,7 +19,7 @@ const  ChatFeed = ({ setSearchTerm }) => {
     let currentFriend = {};
     
     if(conversation) {      
-       conversation.peopleInfo.forEach(person => {
+       conversation?.peopleInfo?.forEach(person => {
            if(person._id !== currentUserId) {
                currentFriend = person;
            }
@@ -49,7 +49,7 @@ const  ChatFeed = ({ setSearchTerm }) => {
 console.log('chatfeed render')
     return(
         <div className={classes.chatfeed}>
-            <FriendBar friend={currentFriend} />
+            <FriendBar friend={currentFriend} groupName={conversation.name}/>
             <Messages  loadedMore={loadedMore} />
             <TextBox conversationId={conversation._id} friendId={currentFriend._id}  setSearchTerm={setSearchTerm} />
         </div>
