@@ -36,7 +36,8 @@ export const useStyle = makeStyles((theme) => ({
     chatinfo: {
         height: '100vh',
         width: '25%',
-        overflow: 'scroll'
+        overflow: 'scroll',
+        backgroundColor: '#f2f2f2'
     },
 
 }))

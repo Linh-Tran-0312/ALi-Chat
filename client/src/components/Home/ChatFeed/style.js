@@ -6,7 +6,7 @@ export const useStyle = makeStyles((theme) => ({
     flexGrow: 1,
   },
   container: {
-    width: '90%',
+    width: '100%',
     display: 'flex',
     flexDirection: 'row',
    
@@ -52,7 +52,8 @@ export const useStyle = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column-reverse',
     justifyContent: 'flex-end',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
+    marginRight: 10
   },
   message_time : {
   
@@ -62,12 +63,13 @@ export const useStyle = makeStyles((theme) => ({
     alignItems: 'center',
   },
   theirmessage_content: {
-    maxWidth: '80%',
+    maxWidth: '70%',
     height: '100%',
     minHeight: 35,
     display: 'flex',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
     padding: 10,
     borderRadius: "17px",
     backgroundColor: '#d6dce5',
@@ -75,7 +77,7 @@ export const useStyle = makeStyles((theme) => ({
     wordBreak: 'break-word'
   },
   mymessage_content: {
-    maxWidth: '80%',
+    maxWidth: '70%',
     height: '100%',
     minHeight: 35,
     display: 'flex',

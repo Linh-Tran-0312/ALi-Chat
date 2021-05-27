@@ -55,22 +55,22 @@ const Conversation = ({ conversation,  user, isSearchResult }) => {
     let lastMessage ="" ;
     if(conversation) {
         const partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
-        name = `${partner.firstname} ${partner.lastname}`;
+        name = ` ${partner.lastname} ${partner.firstname}`;
         name = conversation.name ? conversation.name : name;
        
     if(!conversation.lastMessageInfo[0]?.text && !conversation.lastMessageInfo[0]?.attachment) {
         lastMessage = currentUser._id === conversation.host ? `You have created a group chat !` : `${conversation.hostInfo[0]?.lastname} has currently added you`
-        console.log(conversation.hostInfo);
+       
     }
     else if (conversation.lastMessageInfo.attachment) {
         lastMessage = currentUser._id === conversation.lastMessageInfo.sender ? `You: have sent an image` : 'Sent an image'
     }
     else {
-        if(conversation?.lastMessageInfo[0]?.text.length < 35) {
+        if(conversation?.lastMessageInfo[0]?.text.length < 30) {
             lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${conversation?.lastMessageInfo[0]?.text}` :  conversation?.lastMessageInfo[0]?.text ;
        } else {
            lastMessage = conversation?.lastMessageInfo[0]?.text;
-           lastMessage = lastMessage?.substring(0,35)
+           lastMessage = lastMessage?.substring(0,30)
            lastMessage =`${lastMessage}...`;
            lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${lastMessage}` : `${lastMessage}`
        }

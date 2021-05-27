@@ -5,13 +5,16 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { selectProfile } from '../../../actions/user';
+import { logout } from '../../../actions/auth';
 
-const SimpleMenu = ({logout}) => {
+const SimpleMenu = () => {
     
     const [anchorEl, setAnchorEl] = React.useState(null);
     const dispatch = useDispatch();
+    const history = useHistory();
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -24,7 +27,7 @@ const SimpleMenu = ({logout}) => {
         dispatch(selectProfile(user));
     }
     const handleLogout = () => {
-        return logout()
+        dispatch(logout(history))
     };
 
     return (

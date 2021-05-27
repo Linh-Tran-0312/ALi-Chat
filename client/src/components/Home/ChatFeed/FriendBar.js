@@ -16,7 +16,7 @@ const FriendBar = ({friend, groupName }) => {
     return (
 
         <div className={classes.friendbar}>
-            <StyledBox width="90%" borderBottom={4} className={classes.container}>
+            <StyledBox borderBottom={4} className={classes.container}>
                 <Grid container  direction="row" justify="space-between" alignItems="center" >
                     <Grid item container xs={8}>
                         <Grid item xs={3} className={classes.centeralign}>
@@ -32,10 +32,13 @@ const FriendBar = ({friend, groupName }) => {
                             </StyledBadge>
                         </Grid>
                         <Grid item xs={7} container direction="row" justify="flex-start" alignItems="center">
-                            <Grid item xs={12}><Typography variant="h4" color="primary" fontWeight="fontWeightBold">{ groupName ? `${groupName}` :`${friend.firstname} ${friend.lastname}`}</Typography></Grid>
+                            <Grid item xs={12}><Typography variant="h4" color="primary" fontWeight="fontWeightBold">{ groupName ? `${groupName}` :` ${friend.lastname} ${friend.firstname}`}</Typography></Grid>
                         </Grid>
                     </Grid>
-                    <Grid item xs={4} container direction="row" justify="flex-end" alignItems="center"><Button onClick={handleSelectProfile}><MoreHorizIcon  /></Button></Grid>
+                    {
+                        groupName ? null : <Grid item xs={4} container direction="row" justify="flex-end" alignItems="center"><Button onClick={handleSelectProfile}><MoreHorizIcon  /></Button></Grid>
+
+                    }
                 </Grid>
             </StyledBox>
 

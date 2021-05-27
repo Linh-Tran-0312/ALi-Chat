@@ -1,7 +1,7 @@
 import { Box, IconButton, InputAdornment, TextField } from '@material-ui/core';
 import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useSelector } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendMessage } from '../../../actions/chat';
 import { SocketContext } from './../../../context.socket';
@@ -15,11 +15,11 @@ const initialState = {
     attachment: '',
     text: ''
 }
-const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
+const TextBox = ({ conversation, friendId, setSearchTerm }) => {
 
     const [ formData, setFormData] = useState(initialState);
     const [ text, setText ] = useState("")
-
+  
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
     const classes = useStyle();
     const dispatch = useDispatch();
@@ -28,8 +28,8 @@ const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
     const setNewMessage = (e) => {
         setText(e.target.value)
         setFormData({
-            conversation: conversationId,
-            recipients: [friendId, currentUserId],
+            conversation: conversation._id,
+            recipients: conversation.people || [friendId, currentUserId],
             sender: currentUserId,
             attachment: '',
             text: e.target.value
@@ -38,7 +38,7 @@ const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        if(conversationId) {
+        if(conversation?._id) {
         
             socket.emit('sendMessage', formData, clear());
             dispatch(sendMessage(formData))
@@ -58,7 +58,7 @@ const TextBox = ({ conversationId, friendId, setSearchTerm }) => {
     }
 
     const handleSetSearchTerm = () => {
-        if(conversationId) {
+        if(conversation._id) {
             console.log('da focus')     
             setSearchTerm("");
         }       

@@ -19,12 +19,7 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
     const dispatch = useDispatch();
     const classes = useStyle();
 
-
-    const logout = () => {
-        dispatch({ type: 'LOGOUT' });
-        setUser(null);
-        history.push('/');
-    }
+ 
     const handleChange = (e) => {
         const value = e.target.value
         if (typingTimeoutRef.current) {
@@ -51,7 +46,7 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
                         <Typography variant="h5"  >{`${user.result.lastname} ${user.result.firstname}`}</Typography>
                     </Grid>
                     <Grid item xs={3} >
-                        <Menu logout={logout} />
+                        <Menu />
                     </Grid>
                 </Grid>
             </Box>

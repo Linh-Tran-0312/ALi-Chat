@@ -1,5 +1,5 @@
 import React from 'react';
-import { Avatar, Grid, Box, Tooltip } from '@material-ui/core';
+import { Avatar, Typography, Grid, Box, Tooltip } from '@material-ui/core';
 import { useStyle } from './style';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import AutorenewIcon from '@material-ui/icons/Autorenew';
@@ -34,10 +34,11 @@ const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
 
         <Box width="100%" className={classes.message} my={1} ref={forwardRef}>
             <Grid container style={{ minHeight: 50 }} direction="row" justify="center" alignItems="flex-start">
-                <Grid item xs={11} className={classes.mymessage_box}>
-                    <div className={isLastMessage ? classes.message_time : null}>
-                        {!isNaN(time.getTime()) ? `${timeString}` : "Sending..."}
-                    </div>
+               
+                <Grid item xs={12} className={classes.mymessage_box}>
+                    <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
+                        {!isNaN(time.getTime()) ? `${timeString}` : "sending..."}
+                    </Typography>
                     {message?.attachment ? (<img src={message.attachment}
 
                         className={classes.message_image}
@@ -50,6 +51,7 @@ const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                         </Tooltip>
                     )}
                 </Grid>
+                
             </Grid>
         </Box>
 
