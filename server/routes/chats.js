@@ -1,9 +1,9 @@
 const express = require('express');
-const { getConversationListByUserId, getConversationById, updateConversation } = require('../controllers/conversationController.js');
+const { getConversationListByUserId, getConversationById, updateConversation, getAllConversations } = require('../controllers/conversationController.js');
 const { getAllMessagesByConversationId, createMessage } = require('../controllers/messageController');
 const router = express.Router();
 
-router.get('/conversations', getConversationListByUserId);
+router.get('/conversations/:id', getConversationListByUserId);
 router.get('/conversation/:id', getConversationById);
 router.patch('/conversation', updateConversation);
 

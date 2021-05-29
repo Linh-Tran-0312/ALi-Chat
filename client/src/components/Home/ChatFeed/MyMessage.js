@@ -39,17 +39,15 @@ const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                     <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
                         {!isNaN(time.getTime()) ? `${timeString}` : "sending..."}
                     </Typography>
-                    {message?.attachment ? (<img src={message.attachment}
-
-                        className={classes.message_image}
-
-                    />) : (
-                        <Tooltip title={dateString} placement="left">
-                            <div className={classes.mymessage_content}>
-                                {message?.text}
-                            </div>
-                        </Tooltip>
-                    )}
+                    {message?.attachment ? (<img src={message.attachment} className={classes.message_image}/>
+                                            ) : (
+                                           /*  <Tooltip title={dateString}   placement="left"> */
+                                                <div className={classes.mymessage_content}>
+                                                    {message?.text}
+                                                </div>
+                                                /* <Tooltip /> */
+                                                )
+                    }
                 </Grid>
                 
             </Grid>

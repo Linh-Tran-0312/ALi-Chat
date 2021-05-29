@@ -33,12 +33,13 @@ export const useStyle = makeStyles((theme) => ({
   },
   message_avatar: {
   width: '100%',
+  height: '100%',
   minHeight: 50,
   padding: 10,
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'flex-start',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
   },
   theirmessage_box : {
   width: '100%',
@@ -62,8 +63,15 @@ export const useStyle = makeStyles((theme) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  message_hidden : {
+    visibility: 'hidden',
+    padding: 10,
+   display: 'flex',
+   justifyContent: 'flex-start',
+   alignItems: 'center',
+ },
   theirmessage_content: {
-    maxWidth: '70%',
+    maxWidth: '60%',
     height: '100%',
     minHeight: 35,
     display: 'flex',
@@ -77,7 +85,7 @@ export const useStyle = makeStyles((theme) => ({
     wordBreak: 'break-word'
   },
   mymessage_content: {
-    maxWidth: '70%',
+    maxWidth: '60%',
     height: '100%',
     minHeight: 35,
     display: 'flex',

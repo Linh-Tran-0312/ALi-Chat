@@ -99,43 +99,8 @@ ConversationController.createGroupConversation = async (formData) => {
 }
 }
 ConversationController.getConversationListByUserId = async (req, res) => {
+    const userId = req.params.id
     try {
-        /* const conversations = await Conversation.find({ people: { $all : [req.userId]}}); */
-        // find all conversations contain userId and sort by createdAt of last_message by descending
-        const conversations = await Conversation.aggregate([
-            { $match: { people: { $in: [req.user._id] } } },
-            {
-                $lookup:
-                {
-                    from: "users",
-                    localField: "people",
-                    foreignField: "_id",
-                    as: "peopleInfo",
-                }
-            },
-            {
-                $lookup:
-                {
-                    from: "messages",
-                    localField: "lastMessage",
-                    foreignField: "_id",
-                    as: "lastMessageInfo",
-                }
-            },
-            {
-                $sort: { "lastMessageInfo.createdAt": -1 }
-            }
-        ]);
-
-        return res.status(200).json(conversations)
-    } catch (error) {
-        return res.status(500).json({ message: 'Something went wrong!' })
-    }
-};
-ConversationController.getAllConversations = async (userId) => {
-    try {
-        /* const conversations = await Conversation.find({ people: { $all : [req.userId]}}); */
-        // find all conversations contain userId and sort by createdAt of last_message by descending
         const conversations = await Conversation.aggregate([
             { $match: { people: { $in: [new mongoose.Types.ObjectId(userId)] } } },
             {
@@ -151,8 +116,22 @@ ConversationController.getAllConversations = async (userId) => {
                 $lookup:
                 {
                     from: "messages",
-                    localField: "lastMessage",
-                    foreignField: "_id",
+                    let: {"lastMessageId" : "$lastMessage"},
+                    pipeline : [
+                        { $match: { $expr : { $eq : ["$_id", "$$lastMessageId"]}}},
+                        {
+                            $lookup: 
+                            {
+                                from: 'users',
+                                let: {"senderId" : "$sender"},
+                                pipeline : [
+                                    { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}}
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
+
+                    ],
                     as: "lastMessageInfo",
                 }
             },
@@ -169,8 +148,63 @@ ConversationController.getAllConversations = async (userId) => {
                 $sort: { "lastMessageInfo.createdAt": -1 }
             }
         ]);
+        
+        return res.status(200).json(conversations)
+    } catch (error) {
+        console.log(error)
+    }
+};
+ConversationController.getAllConversations = async (userId) => {
+    try {
+        const conversations = await Conversation.aggregate([
+            { $match: { people: { $in: [new mongoose.Types.ObjectId(userId)] } } },
+            {
+                $lookup:
+                {
+                    from: "users",
+                    localField: "people",
+                    foreignField: "_id",
+                    as: "peopleInfo",
+                }
+            },
+            {
+                $lookup:
+                {
+                    from: "messages",
+                    let: {"lastMessageId" : "$lastMessage"},
+                    pipeline : [
+                        { $match: { $expr : { $eq : ["$_id", "$$lastMessageId"]}}},
+                        {
+                            $lookup: 
+                            {
+                                from: 'users',
+                                let: {"senderId" : "$sender"},
+                                pipeline : [
+                                    { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}}
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
 
-        return conversations
+                    ],
+                    as: "lastMessageInfo",
+                }
+            },
+            {
+                $lookup:
+                {
+                    from: "users",
+                    localField: "host",
+                    foreignField: "_id",
+                    as: "hostInfo",
+                }
+            },
+            {
+                $sort: { "lastMessageInfo.createdAt": -1 }
+            }
+        ]);
+        
+        return conversations;
     } catch (error) {
         console.log(error)
     }

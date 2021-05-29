@@ -46,46 +46,48 @@ const useStyle = makeStyles(() => ({
 
 }))
 
-const Conversation = ({ conversation,  user, isSearchResult }) => {
+const Conversation = ({ conversation }) => {
     const classes = useStyle();
     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
     const currentConversation = useSelector(state => state.conversation);
     const dispatch = useDispatch();
     let name ="" ;
     let lastMessage ="" ;
-    if(conversation) {
+    
+    const isGroupConversation = conversation.name ? true : false 
+    const lastMessageSender = conversation?.lastMessageInfo[0]?.senderInfo[0];
+    if(isGroupConversation) {
+        name = conversation.name
+       
+    } else {
         const partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
         name = ` ${partner.lastname} ${partner.firstname}`;
-        name = conversation.name ? conversation.name : name;
+    }
+    
        
     if(!conversation.lastMessageInfo[0]?.text && !conversation.lastMessageInfo[0]?.attachment) {
-        lastMessage = currentUser._id === conversation.host ? `You have created a group chat !` : `${conversation.hostInfo[0]?.lastname} has currently added you`
+        lastMessage = currentUser._id === conversation.host ? `You have created a group chat !` : `${conversation.hostInfo[0]?.lastname} has recently added you`
        
     }
     else if (conversation.lastMessageInfo.attachment) {
-        lastMessage = currentUser._id === conversation.lastMessageInfo.sender ? `You: have sent an image` : 'Sent an image'
+        lastMessage = currentUser._id === conversation.lastMessageInfo.sender ? `You: have sent an image` : ( isGroupConversation ? `${lastMessageSender.firstname}: sent an image` : "Sent an image" );
     }
     else {
         if(conversation?.lastMessageInfo[0]?.text.length < 30) {
-            lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${conversation?.lastMessageInfo[0]?.text}` :  conversation?.lastMessageInfo[0]?.text ;
+            lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${conversation?.lastMessageInfo[0]?.text}` :   ( isGroupConversation ? `${lastMessageSender.firstname}: ${conversation?.lastMessageInfo[0]?.text}` : conversation?.lastMessageInfo[0]?.text ) ;
        } else {
            lastMessage = conversation?.lastMessageInfo[0]?.text;
            lastMessage = lastMessage?.substring(0,30)
            lastMessage =`${lastMessage}...`;
-           lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${lastMessage}` : `${lastMessage}`
+           lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${lastMessage}` : ( isGroupConversation ? `${lastMessageSender.firstname}: ${lastMessage}` : lastMessage ) ;
        }
     }
   
-    }
+   
     const handleSelect = () => {
-        if (conversation) {
-            dispatch(selectConversation(conversation));
-        }
-        if (user) {
-            dispatch(selectUserResult(user));
-        }
+            dispatch(selectConversation(conversation));    
     }
-    if (!isSearchResult) {
+    
         return (
             <ListItem onClick={handleSelect} className={currentConversation?._id !== conversation._id ? classes.conversation : `${classes.conversation} ${classes.selected}`} alignItems="center">
                 <ListItemAvatar>
@@ -97,29 +99,8 @@ const Conversation = ({ conversation,  user, isSearchResult }) => {
                 <FiberManualRecordIcon color="primary" fontSize="small" />
             </ListItem>
         )
-    }
-    return (
-
-        <ListItem onClick={handleSelect} className={classes.conversation} alignItems="center">
-            <ListItemAvatar>
-                <Avatar url="/DSC_0913.jpg" width="50" height="50" />
-            </ListItemAvatar>
-            {
-                user ? (
-                    <>
-                        <ListItemText primary={`${user.lastname} ${user.firstname}`} />
-                        <ListItemIcon className={classes.icon}>
-                            <FiberNewIcon fontSize="large" color="primary" />
-                        </ListItemIcon>
-                    </>
-                ) : (
-                    <>
-                        <ListItemText primary={name} />                     
-                    </>
-                )}
-
-        </ListItem>
-    )
+    
+  
 }
 
 export default Conversation

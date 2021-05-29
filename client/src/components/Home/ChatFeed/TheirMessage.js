@@ -1,7 +1,9 @@
 import { Avatar, Box, Grid, Tooltip, Typography } from '@material-ui/core';
 import React from 'react';
 import { StyledBadgeStatic, useStyle } from './style';
+import { withStyles } from '@material-ui/core/styles'
 
+ 
 
 const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
     const classes = useStyle();
@@ -41,14 +43,19 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                             </StyledBadgeStatic>
                         ) : null
                     }
+                    {
+                        isLastMessage && (<Typography variant="caption" className={classes.message_hidden}>
+                            Hidden
+                        </Typography>)
+                    }
 
                 </Grid>
                 <Grid item xs={11} className={classes.theirmessage_box} >
-                    {message?.attachment ? (<img src={message?.attachment}
-                        className={classes.message_image}
-                    />) : (
-                        <Tooltip title={dateString} placement="right">
-                            <div className={classes.theirmessage_content}>
+                   
+                        {message?.attachment ? (<img src={message?.attachment} className={classes.message_image} />
+                        ) : (
+                            <div className={classes.theirmessage_content}>                         
+                                 {/* <Tooltip title={dateString} placement="right"> */}
                                 {
                                     message.recipients.length > 2 && (<Typography variant="caption" color="primary">
                                         {message.senderInfo[0].firstname}
@@ -58,17 +65,18 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                                 <Typography variant="body1" >
                                     {message?.text}
                                 </Typography>
+                            {/* </Tooltip> */}
                             </div>
-                        </Tooltip>
-                    )}
-
-                    <div className={isLastMessage ? classes.message_time : null}>
-                        {`${timeString}`}
-                    </div>
+ 
+                        )}
+                   
+                        <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
+                            {`${timeString}`}
+                        </Typography>
 
                 </Grid>
 
-            </Grid>
+                </Grid>
         </Box>
     )
 };

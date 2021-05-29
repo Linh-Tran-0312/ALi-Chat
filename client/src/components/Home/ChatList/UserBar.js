@@ -51,7 +51,7 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
                 </Grid>
             </Box>
             <Box my={0} width="90%">
-                <form >
+               
                     <BorderTextField
                         InputProps={{
                             startAdornment: (
@@ -70,7 +70,7 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
                         name="searchTerm"
 
                     />
-                </form>
+               
                 <Box my={1} >
                     <Box width={1} my={2} >
                         <Grid container direction="row" justify="center" alignItems="center">

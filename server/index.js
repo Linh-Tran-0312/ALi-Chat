@@ -79,7 +79,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
             })
             socket.on('getConversations', async (userId) => {
                 const conversationList = await getAllConversations(userId);
-                console.log(conversationList);
+                
                 io.to(socket.id).emit('sendConversations', conversationList);
             });
             socket.on('getMessages', async (conversationId) => {

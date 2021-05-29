@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt  = require('bcrypt');
 const mongoose  = require('mongoose');
 const User = require('../models/User.js');
+const Conversation = require('../models/Conversation');
 
 const UserController = {};
 
@@ -99,20 +100,80 @@ UserController.searchUsers = async(req, res ) => {
     }
 }
 
-UserController.searchAllUsers = async(req, res) => {
+UserController.searchAllUsers = async(req, res) => { 
     const { searchTerm } = req.body;
     try {
         const userList = await User.aggregate([
             {
-                $match : { $text: { $search : searchTerm}}
+                $match : { $or : [{ firstname : { $regex: new RegExp(searchTerm), $options: 'i'}},{ lastname : { $regex: new RegExp(searchTerm), $options: 'i'}}]} 
             }
         ]);
-        console.log(typeof userList)
+        const conversationList = await Conversation.aggregate([
+            {
+                $match: { name : { $regex: new RegExp(searchTerm), $options: 'i'}}
+            },
+            {
+                $lookup :
+                {
+                   from : "users",
+                   localField: "people",
+                   foreignField: "_id",
+                   as : "peopleInfo",
+                }
+            },
+            {
+                $lookup : 
+                {
+                    from : "messages",
+                    localField: "lastMessage",
+                    foreignField: "_id",
+                    as : "lastMessageInfo",
+                }
+            },
+            {
+                $unwind : "$lastMessageInfo"
+            },
+            {
+                $lookup:
+                {
+                    from: 'users',
+                    localField: "lastMessageInfo.sender",
+                    foreignField: "_id",
+                    as: 'lastMessageInfo.senderInfo'
+                }
+            },
+            {
+                 
+                $unwind : "$lastMessageInfo.senderInfo"
+                 
+            },
+            {
+                $group: {
+                    "_id": "$_id",
+                    "lastMessageInfo" : { "$push" : "lastMessageInfo"}
+                }
+            },
+            {
+                $lookup : 
+                {
+                    from : "users",
+                    localField: "host",
+                    foreignField: "_id",
+                    as : "hostInfo",
+                }
+            },
+        ])
+      
+   
          async function addConversation(userList) {
+        
                for(const user of userList) {
                 const conversation = await Conversation.aggregate([
                     {
                         $match: { $and : [{people: { $in : [new mongoose.Types.ObjectId(user._id)] }},{people: { $in : [new mongoose.Types.ObjectId(req.user._id)] }}]}
+                    },
+                    {
+                        $match : { $expr : { $eq : [{ $size : "$people"}, 2]}}
                     },
                     {
                         $lookup :
@@ -132,12 +193,25 @@ UserController.searchAllUsers = async(req, res) => {
                             as : "lastMessageInfo",
                         }
                     },
+                    {
+                        $lookup : 
+                        {
+                            from : "users",
+                            localField: "host",
+                            foreignField: "_id",
+                            as : "hostInfo",
+                        }
+                    },
                 ]);
                 user.conversation = conversation[0];
                }
          } 
-        await addConversation(userList);
-     
+        await addConversation(userList); 
+         conversationList.forEach( conversation =>  {
+             const userTemp = { conversation};
+             userList.push(userTemp);
+         });
+         console.log(userList);
         return res.status(200).json(userList)
     } catch (error) {
         console.log(error)

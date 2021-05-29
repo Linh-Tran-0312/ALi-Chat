@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Conversation from './Conversation';
+import SearchResult from './SearchResult';
 
 const useStyle = makeStyles(() => ({
     conversationlist : {
@@ -14,12 +15,13 @@ const useStyle = makeStyles(() => ({
 }))
 
 
-const Conversations = ({ searchTerm, selectUserResult}) => {
+const Conversations = ({ searchTerm}) => {
     const classes = useStyle();
      const conversations = useSelector(state => state.conversations);  
     const searchResult = useSelector(state => state.friends);
     const dispatch = useDispatch()
      console.log('conversations render');
+     console.log(searchResult);
     if(!searchTerm) {
         return (
             <List className={classes.conversationlist} disablePadding>
@@ -29,14 +31,7 @@ const Conversations = ({ searchTerm, selectUserResult}) => {
     } else {
         return (
             <List className={classes.conversationlist} disablePadding >          
-                    { searchResult.map((user,index) => {
-                        if(user.conversation) {
-                            return <Conversation key={index} conversation={user.conversation}  isSearchResult/>
-                        } else {
-                            return  <Conversation key={index} user={user} selectUserResult={selectUserResult} isSearchResult/>
-                        }                   
-                    })
-                    }
+                    { searchResult.map((user,index) =>  <SearchResult key={index} user={user}/> )  }
             </List>
         )
     }
