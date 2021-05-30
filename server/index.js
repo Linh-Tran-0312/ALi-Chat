@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -31,7 +31,7 @@ app.use(passport.initialize());
 require('./middleware/passport.js');
 const PORT = process.env.PORT || 5000;
 
-const MONGO_URI = "mongodb+srv://user1:1234@cluster0.vfv4i.mongodb.net/Chat_App?retryWrites=true&w=majority";
+const MONGO_URI = process.env.MONGO_URI;
 
 app.get('/', (req, res) => {
     res.send("This is the Ali Chat API created by Linh Tran")

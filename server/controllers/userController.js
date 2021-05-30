@@ -1,6 +1,7 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const bcrypt  = require('bcrypt');
+const cloudinary = require('../cloudinary');
 const mongoose  = require('mongoose');
 const User = require('../models/User.js');
 const Conversation = require('../models/Conversation');
@@ -86,7 +87,15 @@ UserController.updateProfile = async(req, res) => {
         res.status(500).json({ message: 'Something went wrong. Please try again later.' });
     }
 }
-
+UserController.updateAvatar = async(req, res) => {
+    const { file } = req.files.avatar ;
+    try {
+        let url;
+        cloudinary.uploader.upload()
+    } catch (error) {
+        
+    }
+}
 UserController.searchUsers = async(req, res ) => {
     const { searchTerm } = req.body;
     console.log(searchTerm);
@@ -125,32 +134,22 @@ UserController.searchAllUsers = async(req, res) => {
                 $lookup : 
                 {
                     from : "messages",
-                    localField: "lastMessage",
-                    foreignField: "_id",
+                    let : { "lastMessageId" : "$lastMessage"},
+                    pipeline : [
+                        { $match: { $expr : { $eq : ["$_id", "$$lastMessageId"]}}},
+                        {
+                            $lookup :
+                            {
+                                from : "users",
+                                let : { "senderId" : "$sender"},
+                                pipeline: [
+                                    { $match : { $expr : { $eq : ["$_id", "$$senderId"]}}},
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
+                    ],
                     as : "lastMessageInfo",
-                }
-            },
-            {
-                $unwind : "$lastMessageInfo"
-            },
-            {
-                $lookup:
-                {
-                    from: 'users',
-                    localField: "lastMessageInfo.sender",
-                    foreignField: "_id",
-                    as: 'lastMessageInfo.senderInfo'
-                }
-            },
-            {
-                 
-                $unwind : "$lastMessageInfo.senderInfo"
-                 
-            },
-            {
-                $group: {
-                    "_id": "$_id",
-                    "lastMessageInfo" : { "$push" : "lastMessageInfo"}
                 }
             },
             {

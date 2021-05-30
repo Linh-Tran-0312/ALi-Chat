@@ -21,14 +21,11 @@ export const useStyle = makeStyles((theme) => ({
         backgroundColor: 'rgba(0,0,0, 0.4)',
         borderRadius: 10,
         color: 'white',
-        padding: 10
+        padding: 30
     },
     title: {
-        width: '80%',
-        height: '',
-        position :'relative',
-        left: 5,
-        top: 8,
+        width: '100%',
+
         color: 'white'
     },
     details : {
@@ -36,20 +33,20 @@ export const useStyle = makeStyles((theme) => ({
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        padding: 20
+       
     },
     img_container: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        width: '100%',
-        height: '100%'       
+        width: '100%',     
     },
     img: {
         width: '80%',
-        height: '100%',
+        height: '80%',
         maxWidth: 250,
+        minWidth: 150,
         maxHeight: 350,
         objectFit: 'cover',  
         borderRadius: 5,

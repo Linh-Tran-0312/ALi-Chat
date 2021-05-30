@@ -57,18 +57,7 @@ export const useStyle = makeStyles((theme) => ({
   inputStyle : { 
     "&:-webkit-autofill": {
     WebkitBoxShadow: "0 0 0 1000px white inset"
-  } },
-   chatfeed : {
-    height: '100vh',
-    backgroundColor: 'white',
-    width: '50%'
-    },
-    chatinfo : {
-    height: '100vh',
-    backgroundColor: '#f2f2f2',
-    width: '25%'
-    }
-
+  } }
 }));
 
 export const  StyledBadge = withStyles((theme) => ({

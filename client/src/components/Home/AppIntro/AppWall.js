@@ -7,6 +7,7 @@ import Radium, { StyleRoot } from 'radium';
 import React from 'react';
 import { slideInUp, tada } from 'react-animations';
 import { useStyle } from './style';
+import ModalUpdateProfile from './ModalUpdateProfile';
 
 
 const styles = {
@@ -61,22 +62,20 @@ const AppWall = ({ profile }) => {
                 <Box className={classes.title}>
                     <Typography variant="h4" color="inherit" fontWeight="fontWeightBold" gutterBottom><PersonIcon style={{ fontSize: 45, position: 'relative', top: 10, left: 20 }} />&nbsp; &nbsp;Profile</Typography>
                 </Box>
-                <Grid container direction="row" justify="center" alignItems="center" style={{ width: '100%', height: '80%' }}>
-                    <Grid item xs={12} sm={4} className={classes.img_container} >
+                <Grid container direction="row" justify="center" alignItems="flex-start" style={{ width: '100%' }}>
+                    <Grid  item xs={12} sm={12} md={6} lg={4} className={classes.img_container} >
                         <img src="/DSC_0913.jpg" className={classes.img} />
                     </Grid>
-                    <Grid item xs={12} sm={8} className={classes.details}   >
+                    <Grid item xs={12} sm={12} md={6} lg={8} className={classes.details}   >
                         <Box borderBottom={2} mb={2}>
                             <Typography gutterBottom>“Your time is limited, so don’t waste it living someone else’s life. Don’t be trapped by dogma – which is living with the results of other people’s thinking.” – Steve Jobs</Typography>
                         </Box>               
                         <Typography variant="h2" gutterBottom>{`${profile.lastname} ${profile.firstname}` || profile.name }</Typography>
-                        <Typography gutterBottom>Gender: <MaleIcon className={classes.gendericon} /></Typography>
-                        <Typography gutterBottom>Username: {profile.username}</Typography>
                         <Typography gutterBottom>Email: {profile.email}</Typography>
                     
                         <Box my={3}>
                             {profile._id === userId ? (
-                                <Button variant="contained" color="primary" size="medium" endIcon={<BorderColorIcon />}>Update</Button>
+                                <ModalUpdateProfile />
                             ) : (
                                 <Button variant="contained" color="primary" size="medium" endIcon={<TelegramIcon />}>Send Message </Button>
                             )}
