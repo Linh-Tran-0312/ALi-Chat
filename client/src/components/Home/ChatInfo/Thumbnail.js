@@ -1,13 +1,21 @@
-import React from 'react';
 import { Grid } from '@material-ui/core';
-import { useStyle } from './style';
+import { makeStyles } from '@material-ui/core/styles';
+import React from 'react';
+import ImageModal from '../ImageModal';
+  const useStyles = makeStyles((theme) => ({
+    thumbnail: {
+        objectFit: 'cover',
+         height: 100,
+        width: 100,
+    } 
+}))
 
-const Thumbnail = () => {
-    const classes = useStyle();
 
+const Thumbnail = ({ url }) => {
+    const classes = useStyles();
     return (
-        <Grid item xs={6} sm={4}>
-            <img  src="/DSC_0913.jpg" className={classes.thumbnail}/>
+        <Grid item xs={12} md={4} sm={6}>
+           <ImageModal url={url} minWidth="100px" minHeight="100px" maxWidth="100px" maxHeight="100px"/>
         </Grid>
     )
 };

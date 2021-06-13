@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const User = require('../models/User');
+const upload = require('../utils/multer');
+const cloudinary = require("../utils/cloudinary");
+ 
 
 const MessageController = {};
 
@@ -56,7 +62,6 @@ MessageController.getAllMessages =  async (conversationId) => {
                 $sort: {"createdAt": 1}
             }
         ]);
-      
         return messages
     } catch (error) {
         console.log(error)
@@ -120,21 +125,39 @@ MessageController.createMessage = async(req,res) => {
     }
 }
 MessageController.addMessage = async(message) => {
-       try {
+    if(message.text) {
+        try {
             const newMessage =  await Message.create({...message})
            const currentConversation = await Conversation.findById(message.conversation);
            currentConversation.lastMessage = newMessage._id;
-        
-           if(message.attachment) {
-               currentConversation.attachments.push(message.attachment);
-           }
-        
-            await Conversation.findByIdAndUpdate(currentConversation._id, {...currentConversation}, { new : true });
+
+           await Conversation.findByIdAndUpdate(currentConversation._id, {...currentConversation}, { new : true });
         
            return newMessage
 
        } catch (error) {
            console.log(error)
        }
+    } else {
+        try {
+            console.log(typeof os.tmpdir());
+            const finalPath = path.join(os.tmpdir(), message.attachment.name);
+                   
+             fs.writeFileSync(finalPath, message.attachment.body);
+            const result = await cloudinary.uploader.upload(finalPath); 
+             const url = result.url;
+             message.attachment = url;
+             const newMessage =  await Message.create({...message })
+             const currentConversation = await Conversation.findById(message.conversation);
+             currentConversation.lastMessage = newMessage._id;
+             currentConversation.attachments.push(url);
+             await Conversation.findByIdAndUpdate(currentConversation._id, {...currentConversation}, { new : true });
+          
+             return newMessage
+        } catch(error) {
+            console.log(error)
+        }   
+    }
+      
 }
 module.exports = MessageController;

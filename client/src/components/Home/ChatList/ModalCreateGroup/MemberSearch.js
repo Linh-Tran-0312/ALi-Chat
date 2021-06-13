@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Box, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import React, { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Avatar from '../../../Home/Avatar';
-import { makeStyles } from '@material-ui/core/styles';
-import { Typography, Box, TextField, Popover } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
     memberResults: {

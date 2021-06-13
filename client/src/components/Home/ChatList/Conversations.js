@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Conversation from './Conversation';
 import SearchResult from './SearchResult';
 
-const useStyle = makeStyles(() => ({
+const useStyles = makeStyles(() => ({
     conversationlist : {
         width: '100%',
         overflow: 'auto',
@@ -16,12 +16,11 @@ const useStyle = makeStyles(() => ({
 
 
 const Conversations = ({ searchTerm}) => {
-    const classes = useStyle();
+    const classes = useStyles();
      const conversations = useSelector(state => state.conversations);  
     const searchResult = useSelector(state => state.friends);
     const dispatch = useDispatch()
      console.log('conversations render');
-     console.log(searchResult);
     if(!searchTerm) {
         return (
             <List className={classes.conversationlist} disablePadding>

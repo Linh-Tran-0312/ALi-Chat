@@ -1,17 +1,30 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import { Box } from '@material-ui/core';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { SocketContext } from '../../../context.socket.js';
 import MyMessage from './MyMessage';
-import { useStyle } from './style';
 import TheirMessage from './TheirMessage.js';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+const useStyles = makeStyles((theme) => ({
+    messages: {
+      width: '100%',
+      overflow: 'auto',
+      height: 'calc(100vh - 200px)',
+      backgroundColor: 'white',
+    }
+   
+  }));
+  
 
 const Messages = ({ loadedMore}) => {
-  
-    const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
-     
     console.log('messages render')
-
-    const classes = useStyle();
+    const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
+    const [ isLoading, setIsLoading] = useState(false); 
+    
+  
+    const classes = useStyles();
     const messages = useSelector(state => state.messages);
     const chatBottom = useRef(null);
     const chatTop = useRef(null);
@@ -34,12 +47,14 @@ const Messages = ({ loadedMore}) => {
       
     }
     const myFunction = () => {
-         if(chatTop.current.scrollTop === 0 && messages.length >= 10 ) {
-             loadMessages();           
+         if(chatTop.current.scrollTop === 0 && messages.length >= 10 && messages[0].isFirst == false) {
+             loadMessages(); 
+             setIsLoading(true);          
          } 
     }
 
     useEffect(() => {
+        setIsLoading(false);
         if(!loadedMore.current ) {
            return scrollToBottom()
         } else {
@@ -48,25 +63,36 @@ const Messages = ({ loadedMore}) => {
        }
     ,[messages]);  
 
+    const renderMessages = () => {
+       return (messages.map((message, index )=> {
+            if(message.text || message.attachment) {
+             const nextMessage = index === messages.length ? null : messages[index+1];
+             const isLastMessage = index === messages.length - 1 ? true : false
+             if(message.sender === currentUserId) {
+                 if(index == 10) return <MyMessage key={index}  forwardRef={chatPoint}  isLastMessage={isLastMessage} message={message}/>;
+                 return <MyMessage key={index} isLastMessage={isLastMessage}   message={message}/>
+             }
+             else {
+                 if(index == 10) return <TheirMessage key={index} isLastMessage={isLastMessage} forwardRef={chatPoint} nextMessage={nextMessage} message={message}/>;
+                 return <TheirMessage key={index} isLastMessage={isLastMessage} nextMessage={nextMessage} message={message}/>
+             }
+            }             
+         }) 
+        )
+    }
 
     return(
         <div className={classes.messages} onScroll={myFunction} ref={chatTop}>
+         {
+             isLoading && (
+                 <Box width={1} textAlign="center">
+                            <CircularProgress />
+                 </Box>
+             )
+         }
          
-         {            
-             messages.map((message, index )=> {
-               if(message.text || message.attachment) {
-                const nextMessage = index === messages.length ? null : messages[index+1];
-                const isLastMessage = index === messages.length - 1 ? true : false
-                if(message.sender === currentUserId) {
-                    if(index == 10) return <MyMessage key={index}  forwardRef={chatPoint}  isLastMessage={isLastMessage} message={message}/>;
-                    return <MyMessage key={index} isLastMessage={isLastMessage}   message={message}/>
-                }
-                else {
-                    if(index == 10) return <TheirMessage key={index} isLastMessage={isLastMessage} forwardRef={chatPoint} nextMessage={nextMessage} message={message}/>;
-                    return <TheirMessage key={index} isLastMessage={isLastMessage} nextMessage={nextMessage} message={message}/>
-                }
-               }             
-            })
+         {   
+              !messages || messages.length === 0?  <CircularProgress /> :  renderMessages()
          }
          
             <div ref={chatBottom} />

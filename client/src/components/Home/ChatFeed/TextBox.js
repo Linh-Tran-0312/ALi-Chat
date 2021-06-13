@@ -1,11 +1,34 @@
-import { Box, IconButton, InputAdornment, TextField } from '@material-ui/core';
+import { Box, IconButton, InputAdornment, Paper, InputBase, TextField } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
-import React, { useContext, useState, useSelector } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendMessage } from '../../../actions/chat';
 import { SocketContext } from './../../../context.socket';
-import { useStyle } from './style';
+import Compress from 'compress.js';
+
+const useStyles = makeStyles((theme) => ({
+
+    centeralign: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    textbox: {
+        height: 100,
+        backgroundColor: '#f2f2f2',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    input: {
+        backgroundColor: 'white',
+
+    }
+}));
 
 
 const initialState = {
@@ -16,77 +39,112 @@ const initialState = {
     text: ''
 }
 const TextBox = ({ conversation, friendId, setSearchTerm }) => {
-
-    const [ formData, setFormData] = useState(initialState);
-    const [ text, setText ] = useState("")
-  
+    console.log('textbox render');
+    //const [formData, setFormData] = useState(initialState);
+    const [text, setText] = useState("")
+    //const [ urlImage, setUrlImage ] = useState("");
+    const [ image, setImage ] = useState({});
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
-    const classes = useStyle();
+    console.log(currentUserId);
+    const classes = useStyles();
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
+    const fileRef = useRef();
 
     const setNewMessage = (e) => {
-        setText(e.target.value)
-        setFormData({
-            conversation: conversation._id,
-            recipients: conversation.people || [friendId, currentUserId],
-            sender: currentUserId,
-            attachment: '',
-            text: e.target.value
-        })
+        setText(e.target.value);
+    }
+    const submitMessage = (formData, urlImage) => {
+        if (conversation?._id) {
+            socket.emit('sendMessage', formData);
+            dispatch(sendMessage({...formData, attachment: urlImage}));
+                
+            setText("");
+            
+        }
+        else {
+            socket.emit('createNewConversation', formData);
+            dispatch(sendMessage({...formData, attachment: urlImage}));
+            setText("");          
+            
+        }
     }
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        if(conversation?._id) {
-        
-            socket.emit('sendMessage', formData, clear());
-            dispatch(sendMessage(formData))
-            setText("")
-        }
-        else {
-            console.log("Da toi dispatch");
-          /*   dispatch(createFirstMessage(formData)); */
-            socket.emit('createNewConversation', formData);
-            setText("");    
-            clear();
-        }
-      
+        if(text) {
+            const formData = {
+                conversation: conversation._id,
+                recipients: conversation.people || [friendId, currentUserId],
+                sender: currentUserId,
+                attachment: '',
+                text: text
+            }       
+            return submitMessage(formData)
+        }  
+     
     }
-    const clear = () => {
-        setFormData(initialState)
+ 
+    const handleClickFile = () => {
+           fileRef.current.click();
     }
-
+    const selectFile = (e) => {
+        const compress = new Compress();
+        const image = [...e.target.files];
+        const reader = new FileReader();
+        if(image[0]) {
+            reader.onload = (e) => {
+               
+                compress.compress(image, { size: 1}).then(results  => {
+                    const img1 = results[0]
+                    const base64str = img1.data
+                    const imgExt = img1.ext
+                    const compressedImg = Compress.convertBase64ToFile(base64str, imgExt)
+                    const  formData = {
+                        conversation: conversation._id,
+                        recipients: conversation.people || [friendId, currentUserId],
+                        sender: currentUserId,
+                        attachment: {
+                            body: compressedImg,
+                            name: image[0].name,
+                        },
+                        text: ""
+                    };   
+                    return submitMessage(formData, reader.result);
+                })
+             }
+             reader.readAsDataURL(image[0]);
+            }          
+        
+    }
     const handleSetSearchTerm = () => {
-        if(conversation._id) {
-            console.log('da focus')     
+        if (conversation._id) {
+            console.log('da focus')
             setSearchTerm("");
-        }       
+        }
     }
-    return(
-    <Box width={1} className={classes.textbox}  >
-        <form onSubmit={handleSubmit}   style={{ width: '100%' }} className={classes.centeralign}>
-        <TextField   placeholder="Say something..."
-                    type="text" 
-                    variant="outlined" 
-                   
-                    value={text} 
+    return (
+        <Box width={1} className={classes.textbox}  >
+            <Paper component="form" onSubmit={handleSubmit} style={{ width: '90%' }} className={classes.centeralign}>               
+                <IconButton onClick={handleClickFile}>                      
+                    <input type="file" name="img" ref={fileRef} style={{ display: 'none' }} onChange={selectFile} />
+                    <ImageIcon />
+                </IconButton>             
+                <InputBase placeholder="Say something..."
+                    type="text"
+                    variant="outlined"
+                    value={text}
                     style={{ width: '90%' }}
-                    InputProps={{endAdornment: (
-                        <InputAdornment position="end">
-                            <IconButton>
-                                <ImageIcon/>
-                            </IconButton>
-                            <IconButton type="submit">
-                                <SendIcon />
-                            </IconButton>                          
-                        </InputAdornment>
-                      ), className: classes.input}}
-                      onChange={setNewMessage} 
-                      onFocus={handleSetSearchTerm}                
-                    />
-        </form>
-    </Box>
+                    inputProps={{ 'aria-label': '&nbsp;&nbsp; Say something...' }}
+                    onChange={setNewMessage}
+                    onFocus={handleSetSearchTerm}
+                />
+                <IconButton type="submit">
+                    <SendIcon />
+                </IconButton>
+
+
+            </Paper>
+        </Box>
     )
 };
 

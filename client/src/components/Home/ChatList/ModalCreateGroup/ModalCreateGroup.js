@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { Box, Button, Modal, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { GroupAdd as GroupAddIcon } from '@material-ui/icons';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Modal, Box, Button, TextField, Typography, Chip, Avatar } from '@material-ui/core';
-import { GroupAdd as GroupAddIcon, Label, Search as SearchIcon } from '@material-ui/icons';
- 
 import RiseLoader from 'react-spinners/RiseLoader';
-import MemberSearch from './MemberSearch';
-import MemberAdd from './MemberAdd';
-import { searchMembers, clearSearchMembers } from '../../../../actions/user';
+import { clearSearchMembers, searchMembers } from '../../../../actions/user';
 import { SocketContext } from '../../../../context.socket';
+import MemberAdd from './MemberAdd';
+import MemberSearch from './MemberSearch';
+ 
 
 function getModalStyle() {
   const top = 50;

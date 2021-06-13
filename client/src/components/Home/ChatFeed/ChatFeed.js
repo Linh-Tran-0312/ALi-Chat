@@ -1,15 +1,24 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
-import { useDispatch, useSelector} from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import React, { useContext, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getAllMessages, getPreMessages } from '../../../actions/chat';
 import { SocketContext } from '../../../context.socket';
 import FriendBar from './FriendBar';
 import Messages from './Messages';
-import { useStyle } from './style';
 import TextBox from './TextBox';
+
+ const useStyles = makeStyles((theme) => ({
+    chatfeed: {
+      height: '100vh',
+      backgroundColor: 'white',
+      width: '50%'
+    }
+  }));
+  
 
 const  ChatFeed = ({ setSearchTerm }) => {
   
-    const classes = useStyle();
+    const classes = useStyles();
     const dispatch = useDispatch();
     const loadedMore = useRef(false)
     const socket = useContext(SocketContext);
@@ -46,10 +55,10 @@ const  ChatFeed = ({ setSearchTerm }) => {
     useEffect(() => {
         socket.on('sendPreMessages', preMessages => {
             dispatch(getPreMessages(preMessages));
-            console.log(preMessages.length);
+             
         })
     },[])
-console.log('chatfeed render')
+    console.log('chatfeed render')
     return(
         <div className={classes.chatfeed}>
             <FriendBar friend={currentFriend} groupName={conversation.name}/>

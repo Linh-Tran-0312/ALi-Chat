@@ -12,6 +12,7 @@ export const signUp = (formData) => API.post('/users/signup', formData);
 
 export const fetchFriends = (formData) => API.post('/profile/search', formData)
 export const fetchUserProfile = (id) => API.get(`/profile/${id}`);
+export const updateAvatar = (formData) => API.post('/profile/updateAvatar', formData)
 
 export const fetchConversations = () => API.get('/chats/conversations');
 export const fetchConversation = (id) => API.get(`/chats/conversation/${id}`);

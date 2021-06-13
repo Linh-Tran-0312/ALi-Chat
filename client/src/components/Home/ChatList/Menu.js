@@ -5,10 +5,10 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import MenuIcon from '@material-ui/icons/Menu';
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { selectProfile } from '../../../actions/user';
+import { useHistory } from 'react-router-dom';
 import { logout } from '../../../actions/auth';
+import { selectProfile } from '../../../actions/user';
 
 const SimpleMenu = () => {
     

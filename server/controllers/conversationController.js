@@ -1,58 +1,108 @@
 const mongoose = require('mongoose');
+const os = require('os');
+const fs = require('fs');
+const path = require('path');
+const cloudinary = require("../utils/cloudinary");
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const User = require('../models/User');
+const { fileURLToPath } = require('url');
 
 const ConversationController = {};
 
 ConversationController.createNewConversation = async (formData) => {
     const { recipients, attachment, text, sender } = formData;
-    try {
-        let newConversation = await Conversation.create({ people: recipients });
-        const message = await Message.create({ conversation: newConversation._id, recipients, sender, text, attachment })
+    if(text) {
+        try {
+            let newConversation = await Conversation.create({ people: recipients });
+            const message = await Message.create({ conversation: newConversation._id, isFirst: true,recipients, sender, text, attachment })
 
-        if (attachment) {
-            newConversation.attachments.push(attachment)
+            newConversation.lastMessage = message._id
+            await Conversation.findByIdAndUpdate(newConversation._id, { ...newConversation });
+    
+            const conversation = await Conversation.aggregate([
+                { $match: { _id: newConversation._id } },
+                {
+                    $lookup:
+                    {
+                        from: "users",
+                        localField: "people",
+                        foreignField: "_id",
+                        as: "peopleInfo",
+                    }
+                },
+                {
+                    $lookup:
+                    {
+                        from: "messages",
+                        localField: "lastMessage",
+                        foreignField: "_id",
+                        as: "lastMessageInfo",
+                    }
+                },
+                {
+                    $sort: { "lastMessageInfo.createdAt": -1 }
+                }
+            ]);
+            console.log(conversation)
+            return { conversation: conversation[0], message }
+    
+        } catch (error) {
+            console.log(error)
         }
-        newConversation.lastMessage = message._id
-        await Conversation.findByIdAndUpdate(newConversation._id, { ...newConversation });
-
-        const conversation = await Conversation.aggregate([
-            { $match: { _id: newConversation._id } },
-            {
-                $lookup:
+    } else {
+        try {
+            console.log(typeof os.tmpdir());
+            const finalPath = path.join(os.tmpdir(), attachment.name);                  
+            fs.writeFileSync(finalPath, attachment.body);
+            const result = await cloudinary.uploader.upload(finalPath); 
+            const url = result.url;
+            
+            let newConversation = await Conversation.create({ people: recipients });
+            const message = await Message.create({ conversation: newConversation._id, isFirst: true,recipients, sender, text, attachment : url })
+           
+            newConversation.lastMessage = message._id
+            newConversation.attachments.push(url);
+            await Conversation.findByIdAndUpdate(newConversation._id, { ...newConversation });
+    
+            const conversation = await Conversation.aggregate([
+                { $match: { _id: newConversation._id } },
                 {
-                    from: "users",
-                    localField: "people",
-                    foreignField: "_id",
-                    as: "peopleInfo",
-                }
-            },
-            {
-                $lookup:
+                    $lookup:
+                    {
+                        from: "users",
+                        localField: "people",
+                        foreignField: "_id",
+                        as: "peopleInfo",
+                    }
+                },
                 {
-                    from: "messages",
-                    localField: "lastMessage",
-                    foreignField: "_id",
-                    as: "lastMessageInfo",
+                    $lookup:
+                    {
+                        from: "messages",
+                        localField: "lastMessage",
+                        foreignField: "_id",
+                        as: "lastMessageInfo",
+                    }
+                },
+                {
+                    $sort: { "lastMessageInfo.createdAt": -1 }
                 }
-            },
-            {
-                $sort: { "lastMessageInfo.createdAt": -1 }
-            }
-        ]);
-        console.log(conversation)
-        return { conversation: conversation[0], message }
-
-    } catch (error) {
-        console.log(error)
+            ]);
+            
+            return { conversation: conversation[0], message }
+    
+        } catch (error) {
+            console.log(error)
+        }
     }
+  
 }
 ConversationController.createGroupConversation = async (formData) => {
     const { people, host, name } = formData;
     try {
         let newConversation = await Conversation.create({ people, host, name });
-        const newMessage = await Message.create({ conversation: newConversation._id, sender: host, recipients: people });
+        const newMessage = await Message.create({ conversation: newConversation._id, isFirst : true, sender: host, recipients: people });
         newConversation.lastMessage = newMessage._id;
         await Conversation.findByIdAndUpdate(newConversation._id, {...newConversation});
         newConversation = await Conversation.aggregate([

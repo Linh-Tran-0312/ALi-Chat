@@ -1,23 +1,54 @@
-import { Box, Button, Grid, InputAdornment, Typography, Modal } from '@material-ui/core';
-import { GroupAdd as GroupAddIcon, Search as SearchIcon } from '@material-ui/icons';
-import React, { useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { Box, Grid, InputAdornment, TextField, Typography } from '@material-ui/core';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { Search as SearchIcon } from '@material-ui/icons';
+import React, { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import Avatar from '../Avatar';
 import Menu from './Menu';
 import ModalCreateGroup from './ModalCreateGroup/ModalCreateGroup';
-import { BorderTextField, useStyle } from './style';
 
 
+  const useStyles = makeStyles((theme) => ({
+   userinfo : {
+    width: '100%',
+    height: '250px',
+    backgroundColor: '#edf4ff',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+   },
+   input: {
+    background: "white",
+    borderRadius: 20,
+  },
+  inputStyle : { 
+    "&:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 1000px white inset"
+  } }
+}));
+ 
 
-const UserBar = ({ handleSearchTerm, searchTerm }) => {
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('profile')));
-    
+const BorderTextField = withStyles({
+    root: {
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderRadius: `20px`,
+         
+        },
+   
+      }
+    }
+  })(TextField);
+
+const UserBar = ({ handleSearchTerm }) => {
+    const  user  = useSelector(state => state.user);
+
     const typingTimeoutRef = useRef(null);
 
     const history = useHistory();
     const dispatch = useDispatch();
-    const classes = useStyle();
+    const classes = useStyles();
 
  
     const handleChange = (e) => {
@@ -40,10 +71,10 @@ const UserBar = ({ handleSearchTerm, searchTerm }) => {
             <Box my={4} width="75%">
                 <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
                     <Grid item xs={3} >
-                        <Avatar url={user.result.avatar} width={70} height={70} />
+                        <Avatar url={user.avatar} width={70} height={70} />
                     </Grid>
                     <Grid item xs={6} align="center" >
-                        <Typography variant="h5"  >{`${user.result.lastname} ${user.result.firstname}`}</Typography>
+                        <Typography variant="h5"  >{`${user.lastname} ${user.firstname}`}</Typography>
                     </Grid>
                     <Grid item xs={3} >
                         <Menu />

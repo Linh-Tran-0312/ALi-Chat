@@ -1,14 +1,13 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
 import { ListItem, ListItemAvatar, ListItemIcon, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import FiberNewIcon from '@material-ui/icons/FiberNew';
-import Avatar from '../Avatar';
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { selectConversation } from '../../../actions/chat';
 import { selectUserResult } from '../../../actions/user';
-import { useSelector } from 'react-redux';
-const useStyle = makeStyles(() => ({
+import Avatar from '../Avatar';
+
+const useStyles = makeStyles(() => ({
     conversation: {
         height: 80,
         minWidth: 200,
@@ -47,9 +46,7 @@ const useStyle = makeStyles(() => ({
 }))
 
 const SearchResult = ({ user}) => {
-    const classes = useStyle();
-/*     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
-    const currentConversation = useSelector(state => state.conversation); */
+    const classes = useStyles();
     const dispatch = useDispatch();
     let name ="" ;
     if(user.conversation) {
@@ -73,7 +70,7 @@ const SearchResult = ({ user}) => {
 
         <ListItem onClick={handleSelect} className={classes.conversation} alignItems="center">
             <ListItemAvatar>
-                <Avatar url="/DSC_0913.jpg" width="50" height="50" />
+                <Avatar url={user.avatar} width="50" height="50" />
             </ListItemAvatar>
             {
                 !user.conversation ? (

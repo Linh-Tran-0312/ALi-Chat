@@ -1,6 +1,7 @@
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+
 import { Box, Badge } from '@material-ui/core';
-import '../../.././App.css'
+import '../../.././App.css';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 export const useStyle = makeStyles((theme) => ({
   root: {
     flexGrow: 1,

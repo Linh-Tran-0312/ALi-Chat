@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLastMessage, selectConversation } from '../../actions/chat';
-import { selectProfile, selectUserResult } from '../../actions/user';
 import { SocketContext } from '../../context.socket';
 import AppWall from './AppIntro/AppWall';
 import ChatFeed from './ChatFeed/ChatFeed';
@@ -11,12 +10,8 @@ import { useStyle } from './style';
 
 
 const Home = () => {
-    const userId = JSON.parse(localStorage.getItem('profile')).result._id;
-    /* const [ conversation, setConversation ] = useState(""); */
-  /*   const [ profile, setProfile ] = useState("");
-    const [ userResult, setUserResult ] = useState(""); */
-
-  
+    const user = JSON.parse(localStorage.getItem('profile')).result;
+ 
     const [ searchTerm, setSearchTerm ] = useState("");
 
     const lastMessage = useSelector(state => state.lastMessage)
@@ -28,9 +23,12 @@ const Home = () => {
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
 
-   
+   useEffect(() => {
+     dispatch({type: "SET_PROFILE", payload: user})
+   },[])
+
     useEffect(() => {
-        socket.emit('join', userId);
+        socket.emit('join', user._id);
     },[]);
     
     useEffect(() => {       
@@ -39,7 +37,7 @@ const Home = () => {
 
     useEffect(() => {
         socket.on('message',data => { 
-            if(data.conversation && data.message.sender === userId) {
+            if(data.conversation && data.message.sender === user._id) {
                 setSearchTerm("");
                 dispatch(selectConversation(data.conversation));
             }             
@@ -49,7 +47,7 @@ const Home = () => {
 
     console.log('Home render')
     useEffect(() => {
-        socket.emit('getConversations', userId)
+        socket.emit('getConversations', user._id)
     },[lastMessage])
  
     useEffect(() => {

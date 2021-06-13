@@ -1,9 +1,9 @@
-import { TextareaAutosize, Box, TextField, Grid, Button, Modal, Typography } from '@material-ui/core';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+// eslint-disable-next-line
+import { Box, Button, Grid, Modal, TextField, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 import BorderColorIcon from '@material-ui/icons/BorderColor';
-import PersonIcon from '@material-ui/icons/Person';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 function getModalStyle() {
@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
         border: '2px solid white',
         borderRadius: 10,
         boxShadow: theme.shadows[5],
-        padding: theme.spacing(2, 4, 3),
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -93,44 +92,27 @@ const ModalUpdateProfile = () => {
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
     const [open, setOpen] = React.useState(false);
-    const [ localURL, setLocalURL ] = useState("");
-    //const file = useRef(null)
+
     const handleOpen = () => {
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
-        setLocalURL("")
+ 
     };
 
-    const handleChangeImage = (e) => {
-        const reader = new FileReader();
-        const file = e.target.files[0];
-        console.log(file.type.match('image.*'))
-        const url = reader.readAsDataURL(file);
-        reader.onloadend = (e) => {       
-            setLocalURL(reader.result);
-        };
-       
-    }
+ 
     const body = (
 
-        <form encType="multipart/form-data" onSubmit={handleSubmit}>
+       
             <Box style={modalStyle} className={classes.paper} >
             <Box className={classes.title} textAlign="center" my={2}>
                 <Typography variant="h5" color="inherit" fontWeight="fontWeightBold" gutterBottom>Update your Profile</Typography>
             </Box>
             <Grid container direction="row" justify="center" alignItems="flex-start" style={{ width: '100%' }}>
-                <Grid item xs={12} sm={12} md={6} lg={4} className={classes.img_container} >
-                    <label>
-                        <input  id="avatar" style={{ display: 'none' }} type="file" name="avatar" onChange={handleChangeImage}/>
-                        <img  src={ localURL ? localURL : (profile.avatar ? profile.avatar : '/default-avatar.jpg')} className={classes.img} />
-                    </label>
 
-
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={8} className={classes.details}   >
+                <Grid item className={classes.details}   >
                     <Box width={1} mb={2}>
                         <TextField rows={3}
                             label="Story"
@@ -158,7 +140,7 @@ const ModalUpdateProfile = () => {
                 </Grid>
             </Grid>
         </Box>
-        </form>
+      
 
 
     );

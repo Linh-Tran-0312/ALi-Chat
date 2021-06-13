@@ -75,6 +75,7 @@ export const getPreMessages = (messages) => async(dispatch) => {
 
 export const sendMessage = (message) => async(dispatch) => {
     try {
+        console.log(message); 
         dispatch({ type: 'CREATE_MESSAGE', payload: message})
     } catch (error) {
         console.log(error.message)

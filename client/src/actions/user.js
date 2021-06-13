@@ -1,3 +1,4 @@
+
 import * as api from '../api/index';
 
 export const getUserProfile = (id) => async(dispatch) => {
@@ -17,6 +18,20 @@ export const selectProfile = (profile) => async(dispatch) => {
         console.log(error, error.message);
     }
 };
+export const updateAvatar = (formData) => async(dispatch) => {
+    console.log("da toi action")
+    try {
+        const { data } = await api.updateAvatar(formData);
+        console.log(data);
+        dispatch({ type: "FETCH_PROFILE", payload: data});
+        dispatch({ type: "SET_AVATAR", payload: data });
+        dispatch({ type: "SET_PROFILE", payload: data})
+     
+    } catch (error) {
+        console.log(error, error.message);
+    }
+}
+
 export const selectUserResult = (user) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_USER_RESULT", payload: user});

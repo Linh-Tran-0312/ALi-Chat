@@ -1,12 +1,21 @@
 
+import { makeStyles } from '@material-ui/core/styles';
 import { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllConversations } from '../../../actions/chat';
 import { searchFriends } from '../../../actions/user';
 import { SocketContext } from '../../../context.socket';
 import Conversations from './Conversations';
-import { useStyle } from './style';
 import UserBar from './UserBar';
+
+ const useStyles = makeStyles((theme) => ({ 
+    chatlist : {
+       height: '100vh',
+       backgroundColor: '#f2f2f2',
+       width: '25%'     
+   } 
+}));
+
 
 const ChatList = ({ searchTerm, setSearchTerm}) => {
     
@@ -17,7 +26,7 @@ const ChatList = ({ searchTerm, setSearchTerm}) => {
 
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
-    const classes = useStyle();
+    const classes = useStyles();
     useEffect(() => {
         const formData = { searchTerm }
         if(searchTerm) {

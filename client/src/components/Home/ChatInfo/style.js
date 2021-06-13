@@ -1,6 +1,7 @@
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import Accordion from '@material-ui/core/Accordion';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 export const useStyle = makeStyles((theme) => ({
     title: {
         width: '100%',

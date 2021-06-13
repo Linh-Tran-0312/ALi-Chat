@@ -6,6 +6,7 @@ const messageSchema = new Schema({
     sender: { type: Schema.Types.ObjectId, ref: 'User'},
     recipients: [{ type: Schema.Types.ObjectId, ref: 'User'}],
     createdAt: { type: String, default: Date.now },
+    isFirst: { type: Boolean, default: false},
     attachment: String,
     text: String
 })

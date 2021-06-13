@@ -95,14 +95,14 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
                 const newMessage = await addMessage(formData);
                 const data = { message: newMessage, conversation: ''}
                 io.to(formData.conversation).emit('message', data);
-                const recipients = formData.recipients;
-                recipients.forEach(person => {
+                const recipients = formData.recipients; 
+                recipients.forEach(person => { 
                     if (person !== formData.sender) {
                         io.to(person).emit('message', data);
                     }
                 })
             })
-
+ 
 
 
 

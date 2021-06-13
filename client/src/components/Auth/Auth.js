@@ -6,7 +6,35 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { signIn, signUp } from '../../actions/auth';
 import Input from './Input';
-import useStyles from './style';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles =  makeStyles((theme) => ({
+    submit : {
+       padding: theme.spacing(1),    
+    },
+    paper: {
+        marginTop: theme.spacing(8),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: theme.spacing(2),
+      
+
+    },
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing(3),
+    },
+    avatar: {
+        margin: theme.spacing(3),
+        backgroundColor: theme.palette.secondary.main,
+    },
+    colorBlue: {
+        color: '#20c5dd',
+        fontStyle: 'italic'
+    }
+
+}))
 
 const initialState = {
     lastname: '',

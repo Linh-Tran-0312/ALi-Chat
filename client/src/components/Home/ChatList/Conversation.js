@@ -1,14 +1,12 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
-import { ListItem, ListItemAvatar, ListItemIcon, ListItemText } from '@material-ui/core';
+import { ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import FiberNewIcon from '@material-ui/icons/FiberNew';
-import Avatar from '../Avatar';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectConversation } from '../../../actions/chat';
-import { selectUserResult } from '../../../actions/user';
-import { useSelector } from 'react-redux';
-const useStyle = makeStyles(() => ({
+import Avatar from '../Avatar';
+
+const useStyles = makeStyles(() => ({
     conversation: {
         height: 80,
         minWidth: 200,
@@ -44,23 +42,22 @@ const useStyle = makeStyles(() => ({
         backgroundColor: '#dfe5ff'
     }
 
-}))
-
+}));
 const Conversation = ({ conversation }) => {
-    const classes = useStyle();
+    const classes = useStyles();
     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
     const currentConversation = useSelector(state => state.conversation);
     const dispatch = useDispatch();
     let name ="" ;
     let lastMessage ="" ;
-    
+    let  partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
     const isGroupConversation = conversation.name ? true : false 
     const lastMessageSender = conversation?.lastMessageInfo[0]?.senderInfo[0];
     if(isGroupConversation) {
         name = conversation.name
        
     } else {
-        const partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
+        
         name = ` ${partner.lastname} ${partner.firstname}`;
     }
     
@@ -69,8 +66,8 @@ const Conversation = ({ conversation }) => {
         lastMessage = currentUser._id === conversation.host ? `You have created a group chat !` : `${conversation.hostInfo[0]?.lastname} has recently added you`
        
     }
-    else if (conversation.lastMessageInfo.attachment) {
-        lastMessage = currentUser._id === conversation.lastMessageInfo.sender ? `You: have sent an image` : ( isGroupConversation ? `${lastMessageSender.firstname}: sent an image` : "Sent an image" );
+    else if (conversation.lastMessageInfo[0].attachment) {
+        lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You have sent an image` : ( isGroupConversation ? `${lastMessageSender.firstname} have sent an image` : "Sent an image" );
     }
     else {
         if(conversation?.lastMessageInfo[0]?.text.length < 30) {
@@ -83,7 +80,6 @@ const Conversation = ({ conversation }) => {
        }
     }
   
-   
     const handleSelect = () => {
             dispatch(selectConversation(conversation));    
     }
@@ -91,7 +87,7 @@ const Conversation = ({ conversation }) => {
         return (
             <ListItem onClick={handleSelect} className={currentConversation?._id !== conversation._id ? classes.conversation : `${classes.conversation} ${classes.selected}`} alignItems="center">
                 <ListItemAvatar>
-                    <Avatar url="/DSC_0913.jpg" width="50" height="50" isOnline />
+                    <Avatar url={conversation.people.length === 2 ? partner.avatar : '/group-avatar.png'} width="50" height="50" isOnline />
                 </ListItemAvatar>
                 <ListItemText 
                         primary={name} 

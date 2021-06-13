@@ -1,7 +1,7 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const bcrypt  = require('bcrypt');
-const cloudinary = require('../cloudinary');
+const cloudinary = require('../utils/cloudinary');
 const mongoose  = require('mongoose');
 const User = require('../models/User.js');
 const Conversation = require('../models/Conversation');
@@ -88,12 +88,16 @@ UserController.updateProfile = async(req, res) => {
     }
 }
 UserController.updateAvatar = async(req, res) => {
-    const { file } = req.files.avatar ;
+     console.log('da toi controller')
     try {
-        let url;
-        cloudinary.uploader.upload()
+         const result = await cloudinary.uploader.upload(req.file.path);
+          
+         const url = result.url;
+         const updatedUser = await User.findByIdAndUpdate(req.user._id, {avatar : url}, { new : true});
+         
+         return res.status(200).json(updatedUser);
     } catch (error) {
-        
+        console.log(err);
     }
 }
 UserController.searchUsers = async(req, res ) => {
