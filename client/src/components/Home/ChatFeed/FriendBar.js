@@ -9,7 +9,7 @@ import Avatar from '.././Avatar';
 const StyledBox = withStyles({
     root: {
   
-      borderColor: `#b2b2b2`,
+      borderColor: `white`,
   
     },
   })(Box);
@@ -24,10 +24,11 @@ const useStyles = makeStyles((theme) => ({
     },
       friendbar: {
         width: '100%',
-        height: '100px',
+        height: '80px',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
+        backgroundColor: '#e5eaff'
       },
       centeralign: {
         display: 'flex',
@@ -50,14 +51,14 @@ const FriendBar = ({friend, groupName }) => {
     return (
 
         <div className={classes.friendbar}>
-            <StyledBox borderBottom={4} className={classes.container}>
+            <StyledBox borderBottom={1} className={classes.container}>
                 <Grid container  direction="row" justify="space-between" alignItems="center" >
                     <Grid item container xs={8}>
                         <Grid item xs={3} className={classes.centeralign}>                      
-                                <Avatar width={55} height={55} url={groupName ? '/group-avatar.png' : friend.avatar} isOnline />                         
+                                <Avatar size={55} type={1} url={groupName ? '/group-avatar.png' : friend.avatar} userId={friend._id}/>                         
                         </Grid>
                         <Grid item xs={7} container direction="row" justify="flex-start" alignItems="center">
-                            <Grid item xs={12}><Typography variant="h4" color="primary" fontWeight="fontWeightBold">{ groupName ? `${groupName}` :` ${friend.lastname} ${friend.firstname}`}</Typography></Grid>
+                            <Grid item xs={12}><Typography variant="h5" color="primary" >{ groupName ? `${groupName}` :` ${friend.lastname} ${friend.firstname}`}</Typography></Grid>
                         </Grid>
                     </Grid>
                     {

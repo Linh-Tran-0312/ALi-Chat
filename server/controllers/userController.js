@@ -126,6 +126,9 @@ UserController.searchAllUsers = async(req, res) => {
                 $match: { name : { $regex: new RegExp(searchTerm), $options: 'i'}}
             },
             {
+                $match: {  people: { $in : [new mongoose.Types.ObjectId(req.user._id)] }}
+            },
+            {
                 $lookup :
                 {
                    from : "users",

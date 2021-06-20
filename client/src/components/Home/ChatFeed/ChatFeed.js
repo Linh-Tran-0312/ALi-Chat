@@ -1,16 +1,16 @@
 import { makeStyles } from '@material-ui/core/styles';
 import React, { useContext, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { getAllMessages, getPreMessages } from '../../../actions/chat';
 import { SocketContext } from '../../../context.socket';
 import FriendBar from './FriendBar';
 import Messages from './Messages';
 import TextBox from './TextBox';
-
+import CircularProgress from '@material-ui/core/CircularProgress';
  const useStyles = makeStyles((theme) => ({
     chatfeed: {
       height: '100vh',
-      backgroundColor: 'white',
+      backgroundColor: '#dfe5ff',
       width: '50%'
     }
   }));
@@ -22,8 +22,9 @@ const  ChatFeed = ({ setSearchTerm }) => {
     const dispatch = useDispatch();
     const loadedMore = useRef(false)
     const socket = useContext(SocketContext);
-    const conversation = useSelector(state => state.conversation);
-    const userResult = useSelector(state => state.userResult);
+    const  conversation  = useSelector(state => state.conversation);
+    const   userResult  = useSelector(state => state.userResult);
+    const lastMessage = useSelector(state => state.lastMessage);
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
     let currentFriend = {};
     
@@ -41,6 +42,13 @@ const  ChatFeed = ({ setSearchTerm }) => {
         currentFriend = userResult
     }
     
+    useEffect(() => {
+        if(lastMessage.sender != currentUserId ) {
+            socket.emit('getMessages', conversation?._id);
+            console.log("get lai messages do co last message")
+        }
+      
+    },[lastMessage]);
   
     useEffect(() => {
         loadedMore.current = false;
@@ -61,8 +69,11 @@ const  ChatFeed = ({ setSearchTerm }) => {
     console.log('chatfeed render')
     return(
         <div className={classes.chatfeed}>
-            <FriendBar friend={currentFriend} groupName={conversation.name}/>
-            <Messages  loadedMore={loadedMore} />
+            <FriendBar friend={currentFriend} groupName={conversation?.name}/>
+             
+                  <Messages  loadedMore={loadedMore} />
+             
+          
             <TextBox  conversation={conversation} friendId={currentFriend._id}  setSearchTerm={setSearchTerm} />
         </div>
     )

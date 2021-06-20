@@ -12,8 +12,8 @@ export const getUserProfile = (id) => async(dispatch) => {
 export const selectProfile = (profile) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_PROFILE", payload: profile});
-        dispatch({ type: "SELECT_CONVERSATION", payload: ""});
-        dispatch({ type: "SELECT_USER_RESULT", payload: ""})
+        dispatch({ type: "SELECT_CONVERSATION", payload: null});
+        dispatch({ type: "SELECT_USER_RESULT", payload: null})
     } catch (error) {
         console.log(error, error.message);
     }
@@ -35,8 +35,8 @@ export const updateAvatar = (formData) => async(dispatch) => {
 export const selectUserResult = (user) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_USER_RESULT", payload: user});
-        dispatch({ type: "SELECT_PROFILE", payload: ""});
-        dispatch({ type: "SELECT_CONVERSATION", payload: ""});
+        dispatch({ type: "SELECT_PROFILE", payload: null});
+        dispatch({ type: "SELECT_CONVERSATION", payload: null});
     } catch (error) {
         console.log(error, error.message);
     }
@@ -60,6 +60,14 @@ export const selectUserResult = (user) => async(dispatch) => {
  export const clearSearchMembers = () => async(dispatch) => {
     try {
         dispatch({ type: "FETCH_MEMBERS", payload : [] })
+     } catch (error) {
+        console.log(error, error.message);
+     }
+ }
+
+ export const updateOnlineUsers = (users) => async(dispatch) => {
+     try {
+        dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
      } catch (error) {
         console.log(error, error.message);
      }

@@ -10,8 +10,8 @@ const passport = require('passport');
 const socketIo = require('socket.io');
 const addMessage = require('./controllers/messageController').addMessage;
 const { getAllConversations, createNewConversation }= require('./controllers/conversationController');
-const { getAllMessages, getPreMessages } = require('./controllers/messageController');
-const { createGroupConversation } = require('./controllers/conversationController');
+const { getAllMessages, getPreMessages, userReadLastMessage } = require('./controllers/messageController');
+const { createGroupConversation, addMember, removeMember } = require('./controllers/conversationController');
 
 
 const app = express();
@@ -47,13 +47,21 @@ app.use('/profile', passport.authenticate('jwt', { session: false }), profileRou
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => server.listen(PORT, () => console.log("Server is listening on port: " + PORT)))
     .then(() => {
-
+        let users = [];
         io.on('connection', socket => {
       
             socket.on('join', userId => {
                 socket.join(userId);
+                if(!users.find(user => user.userId === userId)) {
+                    users.push({userId, socketId : socket.id});
+                    io.emit('sendOnlineUsers', users)
+                }
             })
-
+             socket.on('disconnect', () => {
+                users = users.filter((user) => user.socketId !== socket.id);
+                    io.emit('sendOnlineUsers', users);
+                  
+             })
             socket.on('join-conversation', conversationId => {
                 socket.join(conversationId);
             });
@@ -101,7 +109,25 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
                         io.to(person).emit('message', data);
                     }
                 })
+            });
+            
+            socket.on('userReadLastMessage', data => {
+                userReadLastMessage(data);
             })
+
+            socket.on('addMember', async(data) => {
+                const response = await addMember(data);
+                io.to(data.conversationId).emit('SucceedInAddMember', response);
+                const newMemberId = data.people[data.people.length - 1];
+                io.to(newMemberId).emit('loadConversationsAgain')
+            } );
+
+            socket.on('removeMember', async(data) => {
+                let response = await removeMember(data);
+                response.removedId = data.userId;
+                io.to(data.conversationId).emit('SucceedInRemoveMember', response);
+                 
+            });
  
 
 

@@ -10,15 +10,29 @@ const useStyles = makeStyles(() => ({
         width: '100%',
         overflow: 'auto',
         maxHeight: 'calc(100vh - 250px)',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        '&::-webkit-scrollbar': {
+            width: '5px',
+            visibility: 'invisible'
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'white'
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: '#b7bcd4',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: '#555',
+          }
+          
       }
 }))
 
 
 const Conversations = ({ searchTerm}) => {
     const classes = useStyles();
-     const conversations = useSelector(state => state.conversations);  
-    const searchResult = useSelector(state => state.friends);
+     const conversations  = useSelector(state => state.conversations);  
+     const  searchResult = useSelector(state => state.friends);  
     const dispatch = useDispatch()
      console.log('conversations render');
     if(!searchTerm) {

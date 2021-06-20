@@ -16,7 +16,8 @@ export const updateAvatar = (formData) => API.post('/profile/updateAvatar', form
 
 export const fetchConversations = () => API.get('/chats/conversations');
 export const fetchConversation = (id) => API.get(`/chats/conversation/${id}`);
-export const updateConversation = (id, conversation) => API.patch(`/chats/conversation/${id}`, conversation);
+export const updateConversation = (conversation) => API.patch(`/chats/conversation`, conversation);
+
 
 export const fetchMessages = (id) => API.get(`/chats/messages/${id}`);
 export const createFirstMessage = (formData) => API.post('/chats/message', formData);

@@ -1,5 +1,5 @@
 import { Box, IconButton, InputAdornment, Paper, InputBase, TextField } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
 import React, { useContext, useState, useRef } from 'react';
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     },
     textbox: {
         height: 100,
-        backgroundColor: '#f2f2f2',
+        backgroundColor: '#e5eaff',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'center',
@@ -30,6 +30,13 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const StyledBox = withStyles({
+    root: {
+  
+      borderColor: `white`,
+  
+    },
+  })(Box);
 
 const initialState = {
     conversation: "",
@@ -73,11 +80,12 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
         e.preventDefault();
         if(text) {
             const formData = {
-                conversation: conversation._id,
-                recipients: conversation.people || [friendId, currentUserId],
+                conversation: conversation?._id,
+                recipients: conversation?.people || [friendId, currentUserId],
                 sender: currentUserId,
                 attachment: '',
-                text: text
+                text: text,
+                isReadBy: [currentUserId]
             }       
             return submitMessage(formData)
         }  
@@ -107,7 +115,8 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                             body: compressedImg,
                             name: image[0].name,
                         },
-                        text: ""
+                        text: "",
+                        isReadBy: [currentUserId]
                     };   
                     return submitMessage(formData, reader.result);
                 })
@@ -117,13 +126,13 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
         
     }
     const handleSetSearchTerm = () => {
-        if (conversation._id) {
+        if (conversation?._id) {
             console.log('da focus')
             setSearchTerm("");
         }
     }
     return (
-        <Box width={1} className={classes.textbox}  >
+        <StyledBox width={1} borderTop={2} className={classes.textbox}  >
             <Paper component="form" onSubmit={handleSubmit} style={{ width: '90%' }} className={classes.centeralign}>               
                 <IconButton onClick={handleClickFile}>                      
                     <input type="file" name="img" ref={fileRef} style={{ display: 'none' }} onChange={selectFile} />
@@ -144,7 +153,7 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
 
 
             </Paper>
-        </Box>
+        </StyledBox>
     )
 };
 

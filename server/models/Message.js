@@ -7,6 +7,8 @@ const messageSchema = new Schema({
     recipients: [{ type: Schema.Types.ObjectId, ref: 'User'}],
     createdAt: { type: String, default: Date.now },
     isFirst: { type: Boolean, default: false},
+    isNotify: { type: Boolean, default: false},
+    isReadBy: [{ type: Schema.Types.ObjectId, ref: 'User'}],
     attachment: String,
     text: String
 })

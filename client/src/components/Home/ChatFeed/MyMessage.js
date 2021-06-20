@@ -1,8 +1,9 @@
-import { Box, Grid, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Grid, Typography, Avatar } from '@material-ui/core';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import React from 'react';
 import ImageModal from '../ImageModal';
-
+import AvatarGroup from '@material-ui/lab/AvatarGroup';
+import NotifyMessage from './NotifyMessage';
 const useStyles = makeStyles((theme) => ({
     message_avatar: {
         width: '100%',
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     },
     message_time: {
 
-        padding: 10,
+        padding: 5,
         display: 'flex',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -41,7 +42,26 @@ const useStyles = makeStyles((theme) => ({
         backgroundColor: '#8faadc',
         color: 'white',
         fontFamily: 'Open Sans',
-        wordBreak: 'break-word'
+        wordBreak: 'break-word',
+      
+    },
+    mymessage_content_box : {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row-reverse',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        '&:hover $mymessage_time' : {
+            visibility: 'visible'   
+        }
+    },
+    mymessage_time : {
+       backgroundColor: 'rgba(0,0,0,0.5)',
+       color: 'white',
+       padding: '5px 10px 3px 10px',
+       marginRight: 15,
+       borderRadius: '10px',
+       visibility: 'hidden'
     },
     message_image: {
         marginRight: 18,
@@ -63,54 +83,97 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+const StyledAvaGroup = withStyles(() => ({
+    root: {
+        '& .MuiAvatarGroup-avatar': {
+            width: 15,
+            height: 15
+        }
+
+    }
+}))(AvatarGroup);
+
 const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
     const classes = useStyles();
     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
 
     const time = new Date(parseInt(message.createdAt));
 
-    let timeString;
-    let dateString;
-    if (!isNaN(time.getTime())) {
-        const hour = time.getHours().toString();
-        let minute = time.getMinutes().toString();
-        if (minute.length === 1) {
-            minute = `0${minute}`
+    const revertStringToTime = (string) => {
+     const time = new Date(parseInt(string));
+        if (!isNaN(time.getTime())) {
+            const hour = time.getHours().toString();
+            let minute = time.getMinutes().toString();
+            if (minute.length === 1) {
+                minute = `0${minute}`
+            }
+           const timeString = `${hour}:${minute}`;
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const day = time.getDate().toString();
+            const month = months[time.getMonth()];
+            const year = time.getFullYear().toString();
+           const  dateString = `${timeString} ${month} ${day}, ${year}`
+
+          return { timeString, dateString}
         }
-        timeString = `${hour}:${minute}`;
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const day = time.getDate().toString();
-        const month = months[time.getMonth()];
-        const year = time.getFullYear().toString();
-        dateString = `${timeString} ${month} ${day}, ${year}`
     }
+    let timeString, dateString;
+
+    const timeResult = revertStringToTime(message?.createdAt);
+
+      timeString = timeResult?.timeString || "" ;
+      dateString = timeResult?.dateString || "" ;
+    
     if (!isLastMessage) {
         timeString = ""
     }
-
+    let timeNextMessage ;
+    const isDiffTime = parseInt(nextMessage?.createdAt) - time  > 3200000 ;
+    if(isDiffTime) {
+        timeNextMessage = revertStringToTime(nextMessage.createdAt);
+        timeNextMessage.text = timeNextMessage.dateString;
+    }
     return (
-
+       <>
         <Box width="100%" className={classes.message} my={1} ref={forwardRef}>
             <Grid container style={{ minHeight: 50 }} direction="row" justify="center" alignItems="flex-start">
 
                 <Grid item xs={12} className={classes.mymessage_box}>
-                    <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
-                        {!isNaN(time.getTime()) ? `${timeString}` : "sending..."}
-                    </Typography>
-                    {message?.attachment ? (<ImageModal url={message?.attachment } minWidth="200px" maxWidth="200px" minHeight="200px" maxHeight="200px" border="6px" />
-                    ) : (
-                        /*  <Tooltip title={dateString}   placement="left"> */
-                        <div className={classes.mymessage_content}>
-                            {message?.text}
+                    <div className={isLastMessage ? classes.message_time : null}>
+                        
+                            <StyledAvaGroup max={8} spacing={4}>
+                                {
+                                   isLastMessage && (message?.isReadByInfo?.map((reader, index) => {if(reader._id !== currentUser._id) return (<Avatar key={index} alt="" src={reader.avatar}/>)}))
+                                }
+                            </StyledAvaGroup>
+                            <Typography variant="caption" >
+                                {!isNaN(time.getTime()) ? message?.isReadByInfo?.length === 1 ? `${timeString}` : "" : 'sending...'}
+                            </Typography>
+                    </div>
+                  
+                    {message?.attachment ? (
+                        <div className={classes.mymessage_content_box}>
+                            <ImageModal url={message?.attachment } minWidth="200px" maxWidth="200px" minHeight="200px" maxHeight="200px" border="6px" />
+                            <Typography variant="subtitle2" className={classes.mymessage_time}>{dateString}</Typography>                          
                         </div>
-                        /* <Tooltip /> */
+                    ) : (
+                       
+                        <div className={classes.mymessage_content_box}>                          
+                            <div className={classes.mymessage_content}>
+                                 {message?.text}
+                            </div>
+                            <Typography variant="subtitle2" className={classes.mymessage_time}>{dateString}</Typography>                          
+                        </div>
                     )
                     }
                 </Grid>
 
             </Grid>
         </Box>
-
+        {
+            isDiffTime && (<NotifyMessage message={timeNextMessage} color=""/>)
+        }
+</>
     )
 
 };

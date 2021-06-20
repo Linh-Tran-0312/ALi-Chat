@@ -150,7 +150,7 @@ export default function SimpleModal() {
                     <Typography variant="subtitle2" color="primary">Group Name</Typography>
                     <TextField type="text" placeholder="Enter the name" name="name" onChange={(e) => setGroupName(e.target.value)} variant="outlined" size="small" required />
                   </Box>
-                  <MemberSearch handleSearchMem={handleSearchMem} selectMember={selectMember} />
+                  <MemberSearch handleSearchMem={handleSearchMem} selectMember={selectMember} resultWidth="216px"/>
                 </Box>
                 <MemberAdd members={members} handleDelete={handleDelete} warning={warning} />
               </Box>

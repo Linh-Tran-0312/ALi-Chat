@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 const ModalUpdateProfile = () => {
-    const profile = useSelector(state => state.profile);
+    const  profile = useSelector(state => state.profile);
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
     const [open, setOpen] = React.useState(false);

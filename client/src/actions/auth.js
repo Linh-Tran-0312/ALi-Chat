@@ -23,9 +23,9 @@ export const signUp = (formData, history) => async(dispatch) => {
 
 export const logout = (history) => async(dispatch) => {
     try {
-        dispatch({ type: 'SELECT_PROFILE', payload: ""});
-        dispatch({ type: "SELECT_CONVERSATION", payload: ""});
-        dispatch({ type: "SELECT_USER_RESULT", payload: ""});
+        dispatch({ type: 'SELECT_PROFILE', payload: null});
+        dispatch({ type: "SELECT_CONVERSATION", payload: null});
+        dispatch({ type: "SELECT_USER_RESULT", payload: null});
         dispatch({ type: 'LOGOUT'});
         history.push('/');
     } catch (error) {

@@ -1,25 +1,28 @@
-import { Avatar, Box, Grid, Tooltip, Badge, Typography } from '@material-ui/core';
+import {  Box, Grid, Tooltip, Badge, Typography, Avatar as OAvatar } from '@material-ui/core';
 import React from 'react';
 import { makeStyles, withStyles } from '@material-ui/core/styles'
 import ImageModal from '../ImageModal';
-const StyledBadgeStatic =  withStyles((theme) => ({
+import Avatar from '../Avatar';
+import AvatarGroup from '@material-ui/lab/AvatarGroup';
+
+const StyledBadgeStatic = withStyles((theme) => ({
     badge: {
-      backgroundColor: '#44b700',
-      color: '#44b700',
-      boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    
+        backgroundColor: '#44b700',
+        color: '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+
     },
     '@keyframes ripple': {
-      '0%': {
-        transform: 'scale(1)',
-        opacity: 1,
-      },
-      '100%': {
-        transform: 'scale(2.4)',
-        opacity: 0,
-      },
+        '0%': {
+            transform: 'scale(1)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
     },
-  }))(Badge);
+}))(Badge);
 
 const useStyles = makeStyles((theme) => ({
     message_avatar: {
@@ -40,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'flex-start'
     },
     message_time: {
-        padding: 10,
+        padding: 5,
         display: 'flex',
         justifyContent: 'flex-start',
         alignItems: 'center',
@@ -52,6 +55,24 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
+    theirmessage_content_box: {
+
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        '&:hover $theirmessage_time': {
+            visibility: 'visible'
+        }
+    },
+    theirmessage_time: {
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        color: 'white',
+        padding: '5px 10px 3px 10px',
+        marginLeft: 15,
+        borderRadius: '10px',
+        visibility: 'hidden'
+    },
     theirmessage_content: {
         maxWidth: '60%',
         height: '100%',
@@ -62,7 +83,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'flex-start',
         padding: 10,
         borderRadius: "17px",
-        backgroundColor: '#d6dce5',
+        backgroundColor: 'white',
         fontFamily: 'Open Sans',
         wordBreak: 'break-word'
     },
@@ -85,11 +106,19 @@ const useStyles = makeStyles((theme) => ({
 
     }
 }));
+const StyledAvaGroup = withStyles(() => ({
+    root: {
+        '& .MuiAvatarGroup-avatar': {
+            width: 15,
+            height: 15
+        }
 
+    }
+}))(AvatarGroup);
 const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
     const classes = useStyles();
     const time = new Date(parseInt(message.createdAt));
-   // console.log(message?.senderInfo[0]?.avatar);
+    // console.log(message?.senderInfo[0]?.avatar);
     let timeString;
     let dateString;
     if (!isNaN(time.getTime())) {
@@ -114,15 +143,10 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                 <Grid item xs={1} className={classes.message_avatar}>
                     {
                         message.sender !== nextMessage?.sender ? (
-                            <StyledBadgeStatic overlap='circle'
-                                anchorOrigin={{
-                                    vertical: 'bottom',
-                                    horizontal: 'right',
-                                }}
-                                variant="dot">
-                                <Avatar src={message?.senderInfo[0]?.avatar} />
+                           
+                                <Avatar url={message?.senderInfo[0]?.avatar} userId={message?.senderInfo[0]?._id} size={35} type={2}/>
 
-                            </StyledBadgeStatic>
+                            
                         ) : null
                     }
                     {
@@ -134,27 +158,44 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                 </Grid>
                 <Grid item xs={11} className={classes.theirmessage_box} >
 
-                    {message?.attachment ? (<ImageModal url={message?.attachment } minWidth="200px" maxWidth="200px" minHeight="200px" maxHeight="200px" border="6px" />
+                    {message?.attachment ? (
+                    <div className={classes.theirmessage_content_box}>
+                    <ImageModal url={message?.attachment} minWidth="200px" maxWidth="200px" minHeight="200px" maxHeight="200px" border="6px" />
+                    <Typography className={classes.theirmessage_time}>{dateString}</Typography>
+                    </div>
                     ) : (
-                        <div className={classes.theirmessage_content}>
-                            {/* <Tooltip title={dateString} placement="right"> */}
-                            {
-                                message.recipients.length > 2 && (<Typography variant="caption" color="primary">
-                                    {message.senderInfo[0].firstname}
-                                </Typography>)
-                            }
+                        <div className={classes.theirmessage_content_box}>
+                            <div className={classes.theirmessage_content}>
 
-                            <Typography variant="body1" >
-                                {message?.text}
-                            </Typography>
-                            {/* </Tooltip> */}
+                                {
+                                    message.recipients.length > 2 && (<Typography variant="caption" color="primary">
+                                        {message.senderInfo[0].firstname}
+                                    </Typography>)
+                                }
+
+                                <Typography variant="body1" >
+                                    {message?.text}
+                                </Typography>
+
+                            </div>
+                            <Typography className={classes.theirmessage_time}>{dateString}</Typography>
                         </div>
+
 
                     )}
 
-                    <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
-                        {`${timeString}`}
-                    </Typography>
+                    <div className={isLastMessage ? classes.message_time : null}>
+                            <StyledAvaGroup max={8} spacing={4}  >
+                                {
+                                   isLastMessage && (message?.isReadByInfo?.map((reader, index) => <OAvatar key={index} alt="" src={reader.avatar}/>))
+                                }
+                            </StyledAvaGroup>
+                            <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
+                               {/*  {`${timeString}`} */}
+                            </Typography>
+                           
+                    </div>
+                
 
                 </Grid>
 

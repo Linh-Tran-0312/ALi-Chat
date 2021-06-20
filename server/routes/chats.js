@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/conversations/:id', getConversationListByUserId);
 router.get('/conversation/:id', getConversationById);
 router.patch('/conversation', updateConversation);
+ 
 
 router.get('/messages/:id', getAllMessagesByConversationId);
 router.post('/message', createMessage)

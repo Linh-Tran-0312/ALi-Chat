@@ -52,8 +52,8 @@ export const getAllConversations = (conversations) => async(dispatch) => {
 export const selectConversation = (conversation) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_CONVERSATION", payload: conversation});
-        dispatch({ type: "SELECT_USER_RESULT", payload: ""})
-        dispatch({ type: "SELECT_PROFILE", payload: ""})
+        dispatch({ type: "SELECT_USER_RESULT", payload: null})
+        dispatch({ type: "SELECT_PROFILE", payload: null})
     } catch (error) {
         console.log(error.message)
     }
@@ -75,9 +75,49 @@ export const getPreMessages = (messages) => async(dispatch) => {
 
 export const sendMessage = (message) => async(dispatch) => {
     try {
-        console.log(message); 
+         
         dispatch({ type: 'CREATE_MESSAGE', payload: message})
     } catch (error) {
         console.log(error.message)
     }
 }
+
+export const updateMessages = (message) => async(dispatch) => {
+    try {
+         
+        dispatch({ type: 'UPDATE_MESSAGES', payload: message})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+export const updateNotifyMessage = (message) => async(dispatch) => {
+    try {
+         
+        dispatch({ type: 'NOTIFY_MESSAGE', payload: message})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+export const updateConversation = (conversation) => async(dispatch) => {
+    try {
+        const   { data } = await api.updateConversation(conversation);
+       
+        dispatch({ type: "SELECT_CONVERSATION", payload: data});
+        dispatch({ type: "SELECT_USER_RESULT", payload: null})
+        dispatch({ type: "SELECT_PROFILE", payload: null})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+export const setIsLoadingMore = (value) => async(dispatch) => {
+    try {
+         
+        dispatch({ type: 'LOADING_MORE', payload: value})
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+
+ 

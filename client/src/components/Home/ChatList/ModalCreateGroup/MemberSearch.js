@@ -1,14 +1,14 @@
-import { Box, TextField, Typography } from '@material-ui/core';
+import { Box, TextField, Typography, IconButton } from '@material-ui/core';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useRef, useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Avatar from '../../../Home/Avatar';
+import { clearSearchMembers } from '../../../../actions/user';
 
 const useStyles = makeStyles(() => ({
     memberResults: {
         marginTop: 10,
-
-        width: '216px',
         maxHeight: '150px',
         display: 'flex',
         flexDirection: 'column',
@@ -25,20 +25,31 @@ const useStyles = makeStyles(() => ({
         display: 'none',
     },
     member: {
-        width: "182px",
+        width: "calc(100% - 34px)",
         height: 35,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        /*   '&:hover': {
+              backgroundColor: '#dfe5ff',
+              cursor: 'pointer',
+  
+          }, */
+        paddingLeft: 10,
+        paddingTop: 5,
+        paddingBottom: 5
+    },
+    memberInfo :{
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        '&:hover': {
-            backgroundColor: '#dfe5ff',
-            cursor: 'pointer',
-
-        },
-        paddingLeft: 10,
-        paddingTop: 5,
-        paddingBottom: 5
+    },
+    icon: {
+        diplay: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center'
     }
 }))
 
@@ -48,29 +59,25 @@ const Member = ({ member, selectMember }) => {
         selectMember(member)
     }
     return (
-        <Box px={3} className={classes.member} onClick={handleSelectMember}>
-            <Avatar url={member.avatar} width={25} height={25} />
-            <Typography variant="body2" >&nbsp;&nbsp;{`${member.firstname} ${member.lastname}`}</Typography>
+        <Box px={3} className={classes.member} >
+            <Box  className={classes.memberInfo}>
+                <Avatar url={member.avatar} width={25} height={25} />
+                <Typography variant="body2" >&nbsp;&nbsp;{`${member.firstname} ${member.lastname}`}</Typography>
+            </Box>
+            <IconButton size="small" component="span">
+            <GroupAddIcon fontSize="small" onClick={handleSelectMember} style={{  color: '#5B9BD5'}}/>
+        </IconButton>
+           
+
         </Box>
     )
 }
-const MemberSearch = ({ handleSearchMem, selectMember }) => {
+const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth }) => {
     const classes = useStyles();
     const typingTimeoutRef = useRef(null);
     const memberResults = useSelector(state => state.members);
-    const [close, setClose] = useState(false);
-    /*     const [anchorEl, setAnchorEl] = React.useState(null);
-     */
-    /*    const handleClick = (e) => {
-         setAnchorEl(e.currentTarget);
-       };
      
-       const handleClose = () => {
-         setAnchorEl(null);
-       };
-      */
-    /*     const open = Boolean(anchorEl);
-        const id = open ? 'simple-popover' : undefined; */
+    const dispatch = useDispatch();
 
     const handleChange = (e) => {
         const value = e.target.value;
@@ -86,10 +93,18 @@ const MemberSearch = ({ handleSearchMem, selectMember }) => {
             handleSearchMem(formData);
         }, 500);
     }
+    
 
+    /* useEffect(() => {
+        return () => {
+            dispatch(clearSearchMembers());
+        }
+    },[]); */
     return (
-        <Box mb={1} >
-            <Typography variant="subtitle2" color="primary">Add Members</Typography>
+        <Box mb={1} width="100%" style={{ position: 'relative' }}>
+            <Box mb={2}>
+                <Typography variant="subtitle2" color="primary">Add Members</Typography>
+            </Box>
             <TextField
                 type="search"
                 placeholder="Type your friend's name"
@@ -97,8 +112,9 @@ const MemberSearch = ({ handleSearchMem, selectMember }) => {
                 size="small"
                 onChange={handleChange}
                 autoComplete="off"
+                style={{ width: searchWidth }}
             />
-            <Box className={`${memberResults.length !== 0 ? classes.memberResults : null}`}>
+            <Box className={`${memberResults.length !== 0  ? classes.memberResults : null}`} style={{ width: resultWidth }}>
                 {
                     memberResults.map((member, index) => <Member key={index} member={member} selectMember={selectMember} />)
                 }

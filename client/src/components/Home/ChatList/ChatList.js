@@ -11,7 +11,7 @@ import UserBar from './UserBar';
  const useStyles = makeStyles((theme) => ({ 
     chatlist : {
        height: '100vh',
-       backgroundColor: '#f2f2f2',
+       backgroundColor: 'white',
        width: '25%'     
    } 
 }));
@@ -21,26 +21,37 @@ const ChatList = ({ searchTerm, setSearchTerm}) => {
     
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
     const lastMessage = useSelector(state => state.lastMessage);
-
+    const conversation = useSelector(state => state.conversation);
+    const conversations = useSelector(state => state.conversations);
     let isFetch = false;
 
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
     const classes = useStyles();
+    useEffect(() => {   
+        socket.emit('getMessages', conversation?._id);
+        console.log("get lai messages do conversation change")
+},[conversation?._id]); 
+
     useEffect(() => {
         const formData = { searchTerm }
         if(searchTerm) {
             dispatch(searchFriends(formData));
         }
-    },[searchTerm])
+    },[searchTerm]);
+
+    useEffect(() => {
+        socket.emit('getConversations', userId)
+    },[lastMessage]);
 
     useEffect(() => {
         socket.on('sendConversations', conversations => { 
-            console.log("get conversations")
+            console.log("get conversations", conversations.length)
             dispatch(getAllConversations(conversations));
         })
     },[]);  
-    
+
+
   console.log('chatlist render')
    
     const handleSearchTerm = (formData) => {

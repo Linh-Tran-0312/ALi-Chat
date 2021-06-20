@@ -1,11 +1,11 @@
 import { ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useContext, useEffect } from 'react';
+import { useDispatch, useSelector} from 'react-redux';
 import { selectConversation } from '../../../actions/chat';
 import Avatar from '../Avatar';
-
+import { SocketContext } from '../../../context.socket';
 const useStyles = makeStyles(() => ({
     conversation: {
         height: 80,
@@ -44,10 +44,25 @@ const useStyles = makeStyles(() => ({
 
 }));
 const Conversation = ({ conversation }) => {
-    const classes = useStyles();
     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
-    const currentConversation = useSelector(state => state.conversation);
+    const socket = useContext(SocketContext);
+    
+    const [ isRead, setIsRead ] = useState(conversation?.lastMessageInfo[0]?.isReadBy?.some(readerId => readerId === currentUser._id))
+   
+    console.log('isRead', isRead);
+    const  currentConversation = useSelector(state => state.conversation);
     const dispatch = useDispatch();
+    const classes = useStyles();
+
+
+    useEffect(() => {
+        setIsRead(conversation?.lastMessageInfo[0]?.isReadBy?.some(readerId => readerId === currentUser._id));
+        if(currentConversation._id === conversation._id) {
+            socket.emit('userReadLastMessage', { messageId: conversation.lastMessageInfo[0]._id, userId: currentUser._id}); 
+            setIsRead(true);    
+        }
+    },[conversation])
+
     let name ="" ;
     let lastMessage ="" ;
     let  partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
@@ -81,18 +96,26 @@ const Conversation = ({ conversation }) => {
     }
   
     const handleSelect = () => {
+            if(!isRead) {
+                socket.emit('userReadLastMessage', { messageId: conversation.lastMessageInfo[0]._id, userId: currentUser._id});     
+                setIsRead(true);
+            }
+           
             dispatch(selectConversation(conversation));    
     }
     
         return (
             <ListItem onClick={handleSelect} className={currentConversation?._id !== conversation._id ? classes.conversation : `${classes.conversation} ${classes.selected}`} alignItems="center">
                 <ListItemAvatar>
-                    <Avatar url={conversation.people.length === 2 ? partner.avatar : '/group-avatar.png'} width="50" height="50" isOnline />
+                    <Avatar url={conversation.people.length === 2 ? partner.avatar : '/group-avatar.png'} size={50} type={1} userId={partner._id}/>
                 </ListItemAvatar>
                 <ListItemText 
                         primary={name} 
                         secondary={lastMessage} />
-                <FiberManualRecordIcon color="primary" fontSize="small" />
+                        {
+                            !isRead ? <FiberManualRecordIcon color="primary" fontSize="small" /> : null
+                        }
+                
             </ListItem>
         )
     
