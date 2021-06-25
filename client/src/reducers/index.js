@@ -16,5 +16,6 @@ import lastMessage from './lastMessage';
 import userResult from './userResult';
 import members from './memberSearch'; 
 import onlineUsers from './onlineUsers';
+import layout from './layout';
 
-export default combineReducers({ conversation, conversations, auth, user, profile, friends, messages, lastMessage, userResult, members, onlineUsers});
+export default combineReducers({ layout, conversation, conversations, auth, user, profile, friends, messages, lastMessage, userResult, members, onlineUsers});

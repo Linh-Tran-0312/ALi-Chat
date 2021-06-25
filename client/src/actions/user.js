@@ -72,3 +72,18 @@ export const selectUserResult = (user) => async(dispatch) => {
         console.log(error, error.message);
      }
  }
+
+ export const changeScreen  = (screen) => async(dispatch) => {
+    try {
+        dispatch({ type: "SET_SCREEN", payload : screen })
+     } catch (error) {
+        console.log(error, error.message);
+     }
+ }
+ export const changeMode = (mode) => async(dispatch) => {
+    try {
+        dispatch({ type: "SET_MODE", payload : mode })
+     } catch (error) {
+        console.log(error, error.message);
+     }
+ }

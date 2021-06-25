@@ -9,7 +9,6 @@ import { SocketContext } from './../../../context.socket';
 import Compress from 'compress.js';
 
 const useStyles = makeStyles((theme) => ({
-
     centeralign: {
         display: 'flex',
         flexDirection: 'row',
@@ -26,35 +25,25 @@ const useStyles = makeStyles((theme) => ({
     },
     input: {
         backgroundColor: 'white',
-
     }
 }));
 
 const StyledBox = withStyles({
     root: {
-  
       borderColor: `white`,
-  
     },
   })(Box);
 
-const initialState = {
-    conversation: "",
-    recipients: [],
-    sender: "",
-    attachment: '',
-    text: ''
-}
+
 const TextBox = ({ conversation, friendId, setSearchTerm }) => {
-    console.log('textbox render');
-    //const [formData, setFormData] = useState(initialState);
-    const [text, setText] = useState("")
-    //const [ urlImage, setUrlImage ] = useState("");
-    const [ image, setImage ] = useState({});
+    console.log('TextBox render');
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
-    console.log(currentUserId);
+
+    const [text, setText] = useState("")
+  
     const classes = useStyles();
     const dispatch = useDispatch();
+
     const socket = useContext(SocketContext);
     const fileRef = useRef();
 
@@ -65,17 +54,15 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
         if (conversation?._id) {
             socket.emit('sendMessage', formData);
             dispatch(sendMessage({...formData, attachment: urlImage}));
-                
             setText("");
-            
         }
         else {
             socket.emit('createNewConversation', formData);
             dispatch(sendMessage({...formData, attachment: urlImage}));
-            setText("");          
-            
+            setText("");            
         }
     }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if(text) {
@@ -88,8 +75,7 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                 isReadBy: [currentUserId]
             }       
             return submitMessage(formData)
-        }  
-     
+        }    
     }
  
     const handleClickFile = () => {
@@ -97,12 +83,12 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
     }
     const selectFile = (e) => {
         const compress = new Compress();
-        const image = [...e.target.files];
+        const images = [...e.target.files];
         const reader = new FileReader();
-        if(image[0]) {
+        if(images[0]) {
             reader.onload = (e) => {
                
-                compress.compress(image, { size: 1}).then(results  => {
+                compress.compress(images, { size: 1}).then(results  => {
                     const img1 = results[0]
                     const base64str = img1.data
                     const imgExt = img1.ext
@@ -113,7 +99,7 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                         sender: currentUserId,
                         attachment: {
                             body: compressedImg,
-                            name: image[0].name,
+                            name: images[0].name,
                         },
                         text: "",
                         isReadBy: [currentUserId]
@@ -121,16 +107,16 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                     return submitMessage(formData, reader.result);
                 })
              }
-             reader.readAsDataURL(image[0]);
-            }          
-        
+             reader.readAsDataURL(images[0]);
+        }          
     }
+
     const handleSetSearchTerm = () => {
         if (conversation?._id) {
-            console.log('da focus')
             setSearchTerm("");
         }
     }
+
     return (
         <StyledBox width={1} borderTop={2} className={classes.textbox}  >
             <Paper component="form" onSubmit={handleSubmit} style={{ width: '90%' }} className={classes.centeralign}>               
@@ -138,7 +124,7 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                     <input type="file" name="img" ref={fileRef} style={{ display: 'none' }} onChange={selectFile} />
                     <ImageIcon />
                 </IconButton>             
-                <InputBase placeholder="Say something..."
+                <InputBase placeholder="Type your message..."
                     type="text"
                     variant="outlined"
                     value={text}
@@ -150,8 +136,6 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                 <IconButton type="submit">
                     <SendIcon />
                 </IconButton>
-
-
             </Paper>
         </StyledBox>
     )

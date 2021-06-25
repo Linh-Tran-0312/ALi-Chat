@@ -1,33 +1,31 @@
-import { ListItem, ListItemAvatar, ListItemText, IconButton } from '@material-ui/core';
-import VpnKeyIcon from '@material-ui/icons/VpnKey';
-import React, { useSelector } from 'react';
-import { useDispatch } from 'react-redux';
-import Avatar from '.././Avatar';
+import { IconButton, ListItem, ListItemAvatar, ListItemText } from '@material-ui/core';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
- 
-
-const Member = ({person, hostId, kickMember}) => {
-     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
-     
-
-     const isHost = person._id == hostId;
-     const userIsHost = userId == hostId;
+import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import React from 'react';
+import Avatar from '.././Avatar';
 
 
-     const handleKickMember = () => {
-         kickMember(person._id);
-     }
+const Member = ({ person, hostId, removeMember }) => {
+    const userId = JSON.parse(localStorage.getItem('profile')).result._id;
+
+    const isHost = person._id == hostId;
+    const userIsHost = userId == hostId;
+
+    const handleKickMember = () => {
+        removeMember(person._id);
+    }
+
     return (
-          <ListItem  alignItems="center">
-          <ListItemAvatar>
-              <Avatar url={person.avatar} size={50} type={2} userId={person._id} />
-          </ListItemAvatar>
-          <ListItemText 
-                  primary={`${person.lastname} ${person.firstname}`} /> 
-                  {
-                      isHost ?  <VpnKeyIcon color="primary" fontSize="small" /> : userIsHost ? <IconButton onClick={handleKickMember}><ExitToAppIcon color="primary" fontSize="small" /></IconButton> : null
-                  }                    
-      </ListItem>
+        <ListItem alignItems="center">
+            <ListItemAvatar>
+                <Avatar url={person.avatar} size={50} type={2} userId={person._id} />
+            </ListItemAvatar>
+            <ListItemText
+                primary={`${person.lastname} ${person.firstname}`} />
+            {
+                isHost ? <VpnKeyIcon color="primary" fontSize="small" /> : userIsHost ? <IconButton onClick={handleKickMember}><ExitToAppIcon color="primary" fontSize="small" /></IconButton> : null
+            }
+        </ListItem>
     )
 };
 

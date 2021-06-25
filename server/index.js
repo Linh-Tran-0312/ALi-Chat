@@ -62,17 +62,18 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
                     io.emit('sendOnlineUsers', users);
                   
              })
-            socket.on('join-conversation', conversationId => {
-                socket.join(conversationId);
+            socket.on('join-conversation', async(data) => {
+                await socket.leave(data.oldConversation);
+                socket.join(data.newConversation);  
             });
             socket.on('createNewConversation', async (formData) => {
                 const data = await createNewConversation(formData);
-                io.to(socket.id).emit('message', data);
+               // io.to(socket.id).emit('message', data);
                 const recipients = formData.recipients;
                 recipients.forEach(person => {
-                    if (person !== formData.sender) {
+                    //if (person !== formData.sender) {
                         io.to(person).emit('message', data);
-                    }
+                    //}
                 })
             })
             socket.on('createGroupChat', async(formData) => {
@@ -102,17 +103,18 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
             socket.on('sendMessage', async (formData) => {
                 const newMessage = await addMessage(formData);
                 const data = { message: newMessage, conversation: ''}
-                io.to(formData.conversation).emit('message', data);
+              //  io.to(formData.conversation).emit('message', data);
                 const recipients = formData.recipients; 
                 recipients.forEach(person => { 
-                    if (person !== formData.sender) {
+                   // if (person !== formData.sender) {
                         io.to(person).emit('message', data);
-                    }
+                    //}
                 })
             });
             
-            socket.on('userReadLastMessage', data => {
-                userReadLastMessage(data);
+            socket.on('userReadLastMessage', async(data) => {
+                await userReadLastMessage(data);
+                io.to(data.conversationId).emit('updateUserReadMessage', { conversationId : data.conversationId});
             })
 
             socket.on('addMember', async(data) => {

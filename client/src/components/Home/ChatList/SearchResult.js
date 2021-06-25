@@ -39,24 +39,26 @@ const useStyles = makeStyles(() => ({
             fontWeight: 'bold'
         }
     },
-    selected : {
+    selected: {
         backgroundColor: '#dfe5ff'
     }
 
 }))
 
-const SearchResult = ({ user}) => {
+const SearchResult = ({ user }) => {
+
     const classes = useStyles();
+
     const dispatch = useDispatch();
-    let name ="" ;
-    if(user.conversation) {
-      name = user.conversation.name ? user.conversation.name : `${user.lastname} ${user.firstname}`
-     }
-    else {
-         name = `${user.lastname} ${user.firstname}`;
+
+    let name = "";
+    if (user.conversation) {
+        name = user.conversation.name ? user.conversation.name : `${user.lastname} ${user.firstname}`;
     }
-  
-    
+    else {
+        name = `${user.lastname} ${user.firstname}`;
+    }
+
     const handleSelect = () => {
         if (user.conversation) {
             dispatch(selectConversation(user.conversation));
@@ -65,9 +67,8 @@ const SearchResult = ({ user}) => {
             dispatch(selectUserResult(user));
         }
     }
-  
-    return (
 
+    return (
         <ListItem onClick={handleSelect} className={classes.conversation} alignItems="center">
             <ListItemAvatar>
                 <Avatar url={user.avatar} width="50" height="50" />
@@ -82,10 +83,9 @@ const SearchResult = ({ user}) => {
                     </>
                 ) : (
                     <>
-                        <ListItemText primary={name} />                     
+                        <ListItemText primary={name} />
                     </>
                 )}
-
         </ListItem>
     )
 }

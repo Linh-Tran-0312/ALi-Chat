@@ -1,7 +1,7 @@
-import React from 'react';
-import { Box, Grid, Typography, Chip } from '@material-ui/core';
+import { Box, Chip } from '@material-ui/core';
 import FaceIcon from '@material-ui/icons/Face';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
+import React from 'react';
 
 const NotifyMessage = ({ forwardRef, message, color, type}) => {
     return(

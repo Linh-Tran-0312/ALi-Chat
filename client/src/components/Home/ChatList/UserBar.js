@@ -1,12 +1,13 @@
-import { Box, Grid, InputAdornment, TextField, Typography } from '@material-ui/core';
+import { Box, Grid, InputAdornment, TextField, Typography, Button, IconButton, useMediaQuery } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { Search as SearchIcon } from '@material-ui/icons';
+import { Search as SearchIcon, DoubleArrow, ArrowForward, ArrowBack } from '@material-ui/icons';
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import Avatar from '../Avatar';
 import Menu from './Menu';
 import ModalCreateGroup from './ModalCreateGroup/ModalCreateGroup';
+import { changeMode } from '../../../actions/user';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -26,6 +27,12 @@ const useStyles = makeStyles((theme) => ({
         "&:-webkit-autofill": {
             WebkitBoxShadow: "0 0 0 1000px white inset"
         }
+    },
+    center : {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center'
     }
 }));
 
@@ -35,38 +42,50 @@ const BorderTextField = withStyles({
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
                 borderRadius: `20px`,
-
             },
-
         }
     }
 })(TextField);
 
 const UserBar = ({ handleSearchTerm }) => {
+     const { mode, screen } = useSelector(state => state.layout);
+    /* const match900 = useMediaQuery('(max-width: 900px)'); */
     const user = useSelector(state => state.user);
 
     const typingTimeoutRef = useRef(null);
-
-    const history = useHistory();
     const dispatch = useDispatch();
     const classes = useStyles();
-
 
     const handleChange = (e) => {
         const value = e.target.value
         if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
         }
-
         typingTimeoutRef.current = setTimeout(() => {
             const formData = {
                 searchTerm: value
             };
             handleSearchTerm(formData);
         }, 500);
-    }
+    };
 
+    const handleOpenChatList = () => {
+        dispatch(changeMode('MD'));
+    } ;
 
+    const handleCloseChatList = () => {
+        dispatch(changeMode('SM'));
+    } 
+
+     if(mode === 'SM') {
+         return(
+             <div className={classes.userinfo}>
+                 <Box my={2}><Avatar url={user?.avatar} size={70} /></Box>
+                 <Box my={2}><Menu /></Box>
+                 <Box my={2}><Button onClick={handleOpenChatList}><ArrowForward /></Button></Box>                
+             </div>
+         )
+     }
     return (
         <div className={classes.userinfo}  >
             <Box my={4} width="75%">
@@ -83,7 +102,6 @@ const UserBar = ({ handleSearchTerm }) => {
                 </Grid>
             </Box>
             <Box my={0} width="90%">
-
                 <BorderTextField
                     InputProps={{
                         startAdornment: (
@@ -100,18 +118,20 @@ const UserBar = ({ handleSearchTerm }) => {
                     style={{ width: '100%' }}
                     onChange={handleChange}
                     name="searchTerm"
-
                 />
-
                 <Box my={1} >
                     <Box width={1} my={2} >
-                        <Grid container direction="row" justify="center" alignItems="center">
-                            <Grid item xs={12} container direction="row" justify="center" alignItems="center" >
+                        <Box className={classes.center}>
+                        {
+                    screen === 'SM' && ( <Button onClick={handleCloseChatList}><ArrowBack /></Button>)
+                }
                                 <ModalCreateGroup />
-                            </Grid>
-                        </Grid>
+                           
+                        </Box>
                     </Box>
                 </Box>
+            
+               
             </Box>
         </div>
     )

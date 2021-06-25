@@ -80,7 +80,6 @@ MessageController.getAllMessages =  async (conversationId) => {
                 $sort: {"createdAt": 1}
             }
         ]);
-        console.log(messages[messages.length - 1]);
         return messages
     } catch (error) {
         console.log(error)

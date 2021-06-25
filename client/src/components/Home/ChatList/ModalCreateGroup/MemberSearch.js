@@ -1,10 +1,9 @@
-import { Box, TextField, Typography, IconButton } from '@material-ui/core';
-import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import { Box, IconButton, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import React, { useRef, useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import GroupAddIcon from '@material-ui/icons/GroupAdd';
+import React, { useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Avatar from '../../../Home/Avatar';
-import { clearSearchMembers } from '../../../../actions/user';
 
 const useStyles = makeStyles(() => ({
     memberResults: {
@@ -31,11 +30,6 @@ const useStyles = makeStyles(() => ({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        /*   '&:hover': {
-              backgroundColor: '#dfe5ff',
-              cursor: 'pointer',
-  
-          }, */
         paddingLeft: 10,
         paddingTop: 5,
         paddingBottom: 5
@@ -54,10 +48,13 @@ const useStyles = makeStyles(() => ({
 }))
 
 const Member = ({ member, selectMember }) => {
+
     const classes = useStyles();
+
     const handleSelectMember = () => {
         selectMember(member)
     }
+
     return (
         <Box px={3} className={classes.member} >
             <Box  className={classes.memberInfo}>
@@ -65,20 +62,20 @@ const Member = ({ member, selectMember }) => {
                 <Typography variant="body2" >&nbsp;&nbsp;{`${member.firstname} ${member.lastname}`}</Typography>
             </Box>
             <IconButton size="small" component="span">
-            <GroupAddIcon fontSize="small" onClick={handleSelectMember} style={{  color: '#5B9BD5'}}/>
-        </IconButton>
-           
-
+                <GroupAddIcon fontSize="small" onClick={handleSelectMember} style={{  color: '#5B9BD5'}}/>
+            </IconButton>
         </Box>
     )
 }
+
 const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth }) => {
+
     const classes = useStyles();
+
     const typingTimeoutRef = useRef(null);
+
     const memberResults = useSelector(state => state.members);
      
-    const dispatch = useDispatch();
-
     const handleChange = (e) => {
         const value = e.target.value;
 
@@ -94,12 +91,6 @@ const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth 
         }, 500);
     }
     
-
-    /* useEffect(() => {
-        return () => {
-            dispatch(clearSearchMembers());
-        }
-    },[]); */
     return (
         <Box mb={1} width="100%" style={{ position: 'relative' }}>
             <Box mb={2}>

@@ -9,7 +9,6 @@ import { useDispatch, useSelector } from 'react-redux';
 function getModalStyle() {
     const top = 50;
     const left = 50;
-
     return {
         top: `${top}%`,
         left: `${left}%`,
@@ -20,7 +19,7 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
     paper: {
         position: 'absolute',
-        minWidth : 300,
+        minWidth: 300,
         padding: 20,
         backgroundColor: theme.palette.background.paper,
         border: '2px solid white',
@@ -88,7 +87,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 const ModalUpdateProfile = () => {
-    const  profile = useSelector(state => state.profile);
+    const profile = useSelector(state => state.profile);
     const classes = useStyles();
     const [modalStyle] = React.useState(getModalStyle);
     const [open, setOpen] = React.useState(false);
@@ -99,14 +98,11 @@ const ModalUpdateProfile = () => {
 
     const handleClose = () => {
         setOpen(false);
- 
+
     };
 
- 
     const body = (
-
-       
-            <Box style={modalStyle} className={classes.paper} >
+        <Box style={modalStyle} className={classes.paper} >
             <Box className={classes.title} textAlign="center" my={2}>
                 <Typography variant="h5" color="inherit" fontWeight="fontWeightBold" gutterBottom>Update your Profile</Typography>
             </Box>
@@ -140,15 +136,12 @@ const ModalUpdateProfile = () => {
                 </Grid>
             </Grid>
         </Box>
-      
-
-
     );
     return (
         <div>
             <Button variant="contained" size="medium" color="primary" onClick={handleOpen} endIcon={<BorderColorIcon />} >
                 Update
-          </Button>
+            </Button>
             <Modal
                 open={open}
                 style={{ alignItems: "center", justifyContent: "center" }}

@@ -1,85 +1,105 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { getLastMessage, selectConversation, updateMessages, updateNotifyMessage } from '../../actions/chat';
-import { updateOnlineUsers } from '../../actions/user';
+import { updateOnlineUsers, changeScreen } from '../../actions/user';
 import { SocketContext } from '../../context.socket';
 import AppWall from './AppIntro/AppWall';
 import ChatFeed from './ChatFeed/ChatFeed';
 import ChatInfo from './ChatInfo/ChatInfo';
 import ChatList from './ChatList/ChatList';
 import { useStyle } from './style';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import conversations from '../../reducers/conversations';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+// Create custom hook to save previous conversation
+
+const usePrevious = (data) => {
+    const ref = useRef();
+
+    useEffect(() => {
+        ref.current = data
+    },[data])
+    return ref.current;
+}
+
 
 const Home = () => {
+    console.log('HOME RENDER');
+
+    const matchLG = useMediaQuery('(min-width:1101px)');
+    const matchMD = useMediaQuery('(max-width:1100px)');
+    const matchSM = useMediaQuery('(max-width:900px)');
+    const matchXS = useMediaQuery('(max-width:600px)');
+
     
     const user = JSON.parse(localStorage.getItem('profile')).result;
-    
-    const [ searchTerm, setSearchTerm ] = useState("");
 
-    const   conversation   = useSelector(state => state.conversation);
-   // const  lastMessage  = useSelector(state => state.lastMessage);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    const conversation = useSelector(state => state.conversation);
     const profile = useSelector(state => state.profile)
     const userResult = useSelector(state => state.userResult);
-      
+
+    let preConversationId = usePrevious(conversation?._id);
+
     const classes = useStyle();
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
 
-   useEffect(() => {
-   
-     dispatch({type: "SET_PROFILE", payload: user})
-   },[])
+    useEffect(() => {
+        dispatch({ type: "SET_PROFILE", payload: user });
+    }, [])
+
+    useEffect(() => {
+        socket.connect();
+    }, [user]);
 
     useEffect(() => {
         socket.emit('join', user?._id);
-    },[user]);
-    
-    useEffect(() => {
-        socket.connect();
-    },[user]);
-
-    useEffect(() => {       
-        socket.emit('join-conversation', conversation?._id)
-    },[conversation]);
+    }, [user]);
 
     useEffect(() => {
-        socket.on('message',data => { 
-            // neu tin nhan ve la tin nhac dau tien do user gui den 1 nguoi moi
-            if(data.conversation && data.message.sender === user?._id) {
+        socket.emit('join-conversation',{ newConversation: conversation?._id, oldConversation: preConversationId});
+        console.log('change room')
+    }, [conversation]);
+
+    useEffect(() => {
+        socket.on('message', data => {
+            if (data.conversation && data.message.sender === user?._id) {
                 setSearchTerm("");
                 dispatch(selectConversation(data.conversation));
-            }  
-           console.log('dispatch get last message');
-            dispatch(getLastMessage(data.message));  
-            if(data.message.sender === user?._id) {
-                dispatch(updateMessages(data.message));    
             }
-                      
+            dispatch(getLastMessage(data.message));
+            if (data.message.sender === user?._id) {
+                dispatch(updateMessages(data.message));
+            }
         })
-    },[]);
+    }, []);
 
-    console.log('Home render')
-   /*  useEffect(() => {
-        socket.emit('getConversations', user?._id)
-    },[lastMessage]);
- */
+    useEffect(() => {
+        socket.on('updateUserReadMessage', data => {
+             
+                socket.emit('getMessages', data.conversationId);
+   
+        })
+    },[])
+
     useEffect(() => {
         socket.on('loadConversationsAgain', () => {
             socket.emit('getConversations', user?._id)
         })
-    },[]);
-    // Khi server add memmber thanh cong thi tra ve conversaion da update va message thong bao
+    }, []);
+
+    // When server add a member to the conversation successfully
     useEffect(() => {
         socket.on('SucceedInAddMember', response => {
             dispatch(selectConversation(response.conversation));
             dispatch(updateNotifyMessage(response.message))
         })
-    },[])
-    // Khi server xoa member
+    }, []);
+
+    // When server remove a member to the conversation successfully
     useEffect(() => {
         socket.on('SucceedInRemoveMember', response => {
-            if(response.removedId === user?._id) {
+            if (response.removedId === user?._id) {
                 socket.emit('getConversations', user?._id);
                 dispatch(selectConversation(null));
             } else {
@@ -87,39 +107,49 @@ const Home = () => {
                 dispatch(updateNotifyMessage(response.message))
             }
         })
-    },[])
-   useEffect(() => {
-       socket.on('sendOnlineUsers', users => {
-           dispatch(updateOnlineUsers(users))
-       })
-    },[]);  
+    }, [])
 
-    useEffect(() => {   
-     return(() => {
-        socket.disconnect();
-     })            
-    },[]);  
+    // Server send list of online users
+    useEffect(() => {
+        socket.on('sendOnlineUsers', users => {
+            dispatch(updateOnlineUsers(users))
+        })
+    }, []);
+
+    useEffect(() => { 
+        if(matchLG) dispatch(changeScreen('LG'));
+        if(matchMD) dispatch(changeScreen('MD'));
+        if(matchSM) dispatch(changeScreen('SM'));
+        if(matchXS) dispatch(changeScreen('XS'));
+    },[matchMD,matchSM ,matchXS, matchLG]);
+
+    useEffect(() => {
+        return (() => {
+            socket.disconnect();
+        })
+    }, []);
 
     return (
-        
+
+       
         <div className={classes.container}>
+            <ChatList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             {
-                conversations.length == 0
+               
+                (!conversation && !userResult) ? (
+                    <AppWall profile={profile} />
+                ) : (
+                    <>
+                        <ChatFeed setSearchTerm={setSearchTerm} />
+                        {
+                           !matchMD&& (<ChatInfo />)
+                        }
+                        
+                    </>
+                )
             }
-                <ChatList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-        {
-            (!conversation && !userResult) ? (
-                <AppWall profile={profile} />
-            ) : (
-                <>
-                <ChatFeed setSearchTerm={setSearchTerm} />
-                <ChatInfo/>
-                </> 
-                
-            )
-        }
         </div>
-        
+
     )
 }
 

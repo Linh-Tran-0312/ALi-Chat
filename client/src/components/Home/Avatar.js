@@ -32,12 +32,12 @@ const StyledBadge1 = withStyles((theme) => ({
     },
   },
 }))(Badge);
+
 const StyledBadge2 = withStyles((theme) => ({
   badge: {
     backgroundColor: '#44b700',
     color: '#44b700',
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-  
   },
   '@keyframes ripple': {
     '0%': {
@@ -51,19 +51,30 @@ const StyledBadge2 = withStyles((theme) => ({
   },
 }))(Badge);
 
-
 const AvatarIcon = ({ url, size, type, userId }) => {
 
-   const onlineUsers = useSelector(state => state.onlineUsers)
-   let isOnline = onlineUsers.some(user => user.userId === userId);
-
-   
+  const onlineUsers = useSelector(state => state.onlineUsers)
+  let isOnline = onlineUsers.some(user => user.userId === userId);
 
   if (isOnline) {
-    if(type === 1)
+    if (type === 1)
+      return (
+        <div>
+          <StyledBadge1
+            overlap="circle"
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            variant="dot"
+          >
+            <Avatar src={url} style={{ width: `${size}px`, height: `${size}px` }} />
+          </StyledBadge1>
+        </div>
+      )
     return (
       <div>
-        <StyledBadge1
+        <StyledBadge2
           overlap="circle"
           anchorOrigin={{
             vertical: 'bottom',
@@ -72,22 +83,8 @@ const AvatarIcon = ({ url, size, type, userId }) => {
           variant="dot"
         >
           <Avatar src={url} style={{ width: `${size}px`, height: `${size}px` }} />
-        </StyledBadge1>
+        </StyledBadge2>
       </div>
-    )
-    return (
-      <div>
-      <StyledBadge2
-        overlap="circle"
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        variant="dot"
-      >
-        <Avatar src={url} style={{ width: `${size}px`, height: `${size}px` }} />
-      </StyledBadge2>
-    </div>
     )
   }
   return (

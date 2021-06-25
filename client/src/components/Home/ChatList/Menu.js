@@ -13,19 +13,24 @@ import { selectProfile } from '../../../actions/user';
 const SimpleMenu = () => {
     
     const [anchorEl, setAnchorEl] = React.useState(null);
+
     const dispatch = useDispatch();
     const history = useHistory();
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
       };
+
     const handleGetProfile = () => {
         const user = JSON.parse(localStorage.getItem('profile')).result;
         setAnchorEl(null);
         dispatch(selectProfile(user));
     }
+    
     const handleLogout = () => {
         dispatch(logout(history))
     };
