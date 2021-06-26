@@ -158,7 +158,7 @@ const MyMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                         <div className={isLastMessage ? classes.message_time : null}>
                             <StyledAvaGroup max={10} spacing={4}>
                                 {
-                                    isLastMessage && (message?.isReadByInfo?.map((reader, index) => { if (reader._id !== currentUser._id) return (<Avatar key={index} alt="" src={reader.avatar} />) }))
+                                    isLastMessage && (message?.isReadByInfo?.map((reader, index) => { if (reader._id !== message.sender) return (<Avatar key={index} alt="" src={reader.avatar} />) }))
                                 }
                             </StyledAvaGroup>
                             <Typography variant="caption" >

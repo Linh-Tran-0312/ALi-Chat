@@ -1,10 +1,10 @@
 import { Box, IconButton, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import GroupAddIcon from '@material-ui/icons/GroupAdd';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Avatar from '../../../Home/Avatar';
-
+import CircularProgress from '@material-ui/core/CircularProgress';
 const useStyles = makeStyles(() => ({
     memberResults: {
         marginTop: 10,
@@ -50,31 +50,37 @@ const useStyles = makeStyles(() => ({
 const Member = ({ member, selectMember }) => {
 
     const classes = useStyles();
-
+    const [ isAdding, setIsAdding ] = useState(false);
     const handleSelectMember = () => {
-        selectMember(member)
+        selectMember(member);
+        setIsAdding(true);
     }
-
+     useEffect(() => {
+         setIsAdding(false);
+     },[member])
     return (
         <Box px={3} className={classes.member} >
             <Box  className={classes.memberInfo}>
-                <Avatar url={member.avatar} width={25} height={25} />
+                <Avatar url={member.avatar} size={20} />
                 <Typography variant="body2" >&nbsp;&nbsp;{`${member.firstname} ${member.lastname}`}</Typography>
             </Box>
-            <IconButton size="small" component="span">
-                <GroupAddIcon fontSize="small" onClick={handleSelectMember} style={{  color: '#5B9BD5'}}/>
+            <IconButton size="small" component="span"  onClick={handleSelectMember}>
+                {
+                    isAdding ? <CircularProgress color="primary" size={20}/> :  <GroupAddIcon fontSize="small" style={{  color: '#5B9BD5'}}/>
+                }
+               
             </IconButton>
         </Box>
     )
 }
 
-const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth }) => {
+const MemberSearch = ({ list, handleSearchMem, selectMember, resultWidth, searchWidth }) => {
 
     const classes = useStyles();
 
     const typingTimeoutRef = useRef(null);
-
-    const memberResults = useSelector(state => state.members);
+   
+    //const memberResults = useSelector(state => state.members);
      
     const handleChange = (e) => {
         const value = e.target.value;
@@ -93,7 +99,7 @@ const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth 
     
     return (
         <Box mb={1} width="100%" style={{ position: 'relative' }}>
-            <Box mb={2}>
+            <Box mb={1}>
                 <Typography variant="subtitle2" color="primary">Add Members</Typography>
             </Box>
             <TextField
@@ -105,9 +111,9 @@ const MemberSearch = ({ handleSearchMem, selectMember, resultWidth, searchWidth 
                 autoComplete="off"
                 style={{ width: searchWidth }}
             />
-            <Box className={`${memberResults.length !== 0  ? classes.memberResults : null}`} style={{ width: resultWidth }}>
+            <Box className={`${list.length !== 0  ? classes.memberResults : null}`} style={{ width: resultWidth }}>
                 {
-                    memberResults.map((member, index) => <Member key={index} member={member} selectMember={selectMember} />)
+                    list.map((member, index) => <Member key={index} member={member} selectMember={selectMember} />)
                 }
             </Box>
         </Box>

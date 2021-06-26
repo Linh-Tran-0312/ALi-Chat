@@ -1,4 +1,5 @@
 import { Avatar as OAvatar, Badge, Box, Grid, Typography, Chip } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import React from 'react';
@@ -126,7 +127,8 @@ const StyledAvaGroup = withStyles(() => ({
 const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
 
     const classes = useStyles();
-
+    const { mode } = useSelector(state => state.layout);
+    const matchXS = mode === 'XS';
     const time = new Date(parseInt(message.createdAt));
 
     const revertStringToTime = (string) => {
@@ -171,7 +173,7 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                     <Grid item xs={1} className={classes.message_avatar}>
                         {
                             message.sender !== nextMessage?.sender ? (
-                                <Avatar url={message?.senderInfo[0]?.avatar} userId={message?.senderInfo[0]?._id} size={35} type={2} />
+                                <Avatar url={message?.senderInfo[0]?.avatar} userId={message?.senderInfo[0]?._id} size={matchXS ? 25 : 35} type={2} />
                             ) : null
                         }
                         {
@@ -219,7 +221,7 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                             }               
                             <StyledAvaGroup max={10} spacing={4}  >
                                 {
-                                    isLastMessage && (message?.isReadByInfo?.map((reader, index) => <OAvatar key={index} alt="" src={reader.avatar} />))
+                                    isLastMessage && (message?.isReadByInfo?.map((reader, index) => { if (reader._id !== message.sender) return (<OAvatar key={index} alt="" src={reader.avatar} />) }))
                                 }
                             </StyledAvaGroup>                     
                         </div>

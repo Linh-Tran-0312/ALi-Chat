@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLastMessage, selectConversation, updateMessages, updateNotifyMessage } from '../../actions/chat';
-import { updateOnlineUsers, changeScreen } from '../../actions/user';
+import { getLastMessage, selectConversation, updateMessages, updateConversationAfterMemberChange, isRemovedFromGroup } from '../../actions/chat';
+import { changeScreen } from '../../actions/layout';
+import { updateOnlineUsers } from '../../actions/user';
 import { SocketContext } from '../../context.socket';
 import AppWall from './AppIntro/AppWall';
 import ChatFeed from './ChatFeed/ChatFeed';
@@ -27,16 +28,17 @@ const Home = () => {
     const matchLG = useMediaQuery('(min-width:1101px)');
     const matchMD = useMediaQuery('(max-width:1100px)');
     const matchSM = useMediaQuery('(max-width:900px)');
-    const matchXS = useMediaQuery('(max-width:600px)');
+    const matchXS = useMediaQuery('(max-width:640px)');
 
     
     const user = JSON.parse(localStorage.getItem('profile')).result;
 
     const [searchTerm, setSearchTerm] = useState("");
 
+    const { view } = useSelector(state => state.layout);
     const conversation = useSelector(state => state.conversation);
-    const profile = useSelector(state => state.profile)
-    const userResult = useSelector(state => state.userResult);
+  /*   const profile = useSelector(state => state.profile)
+    const userResult = useSelector(state => state.userResult); */
 
     let preConversationId = usePrevious(conversation?._id);
 
@@ -90,9 +92,8 @@ const Home = () => {
 
     // When server add a member to the conversation successfully
     useEffect(() => {
-        socket.on('SucceedInAddMember', response => {
-            dispatch(selectConversation(response.conversation));
-            dispatch(updateNotifyMessage(response.message))
+        socket.on('SucceedInAddMember', response => {  
+            dispatch(updateConversationAfterMemberChange(response))
         })
     }, []);
 
@@ -101,10 +102,9 @@ const Home = () => {
         socket.on('SucceedInRemoveMember', response => {
             if (response.removedId === user?._id) {
                 socket.emit('getConversations', user?._id);
-                dispatch(selectConversation(null));
+                dispatch(isRemovedFromGroup());    
             } else {
-                dispatch(selectConversation(response.conversation));
-                dispatch(updateNotifyMessage(response.message))
+                dispatch(updateConversationAfterMemberChange(response))
             }
         })
     }, [])
@@ -133,21 +133,18 @@ const Home = () => {
 
        
         <div className={classes.container}>
-            <ChatList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             {
-               
-                (!conversation && !userResult) ? (
-                    <AppWall profile={profile} />
-                ) : (
-                    <>
-                        <ChatFeed setSearchTerm={setSearchTerm} />
-                        {
-                           !matchMD&& (<ChatInfo />)
-                        }
-                        
-                    </>
-                )
+                view.CHATLIST && <ChatList searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+            }  
+            {
+                view.INTRO &&   <AppWall />
+            }       
+            {             
+                view.CHATFEED &&  <ChatFeed setSearchTerm={setSearchTerm} />
             }
+            {
+                view.CHATINFO && <ChatInfo />
+            }           
         </div>
 
     )

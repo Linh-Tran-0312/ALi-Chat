@@ -52,8 +52,8 @@ export const getAllConversations = (conversations) => async(dispatch) => {
 export const selectConversation = (conversation) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_CONVERSATION", payload: conversation});
-        dispatch({ type: "SELECT_USER_RESULT", payload: null})
-        dispatch({ type: "SELECT_PROFILE", payload: null})
+        dispatch({ type: "VIEW_CHATFEED"});
+        dispatch({ type: "FETCH_MESSAGES",  payload: []})
     } catch (error) {
         console.log(error.message)
     }
@@ -90,10 +90,12 @@ export const updateMessages = (message) => async(dispatch) => {
         console.log(error.message)
     }
 }
-export const updateNotifyMessage = (message) => async(dispatch) => {
+export const updateConversationAfterMemberChange = (response) => async(dispatch) => {
     try {
-         
-        dispatch({ type: 'NOTIFY_MESSAGE', payload: message})
+        dispatch({ type: "SELECT_CONVERSATION", payload: response.conversation});
+        dispatch({ type: "UPDATE_CONVERSATIONS", payload: response.conversation})
+        dispatch({ type: 'NOTIFY_MESSAGE', payload: response.message});
+        dispatch({ type: 'VIEW_CHATFEED'});
     } catch (error) {
         console.log(error.message)
     }
@@ -119,5 +121,15 @@ export const setIsLoadingMore = (value) => async(dispatch) => {
     }
 }
 
+export const isRemovedFromGroup = () => async(dispatch) => {
+            
+    try {
+         
+        dispatch({ type: 'SELECT_CONVERSATION', payload:null});
+        dispatch({ type: 'VIEW_CONVERSATIONS'});
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 
  

@@ -1,13 +1,14 @@
 import { Box, Grid, InputAdornment, TextField, Typography, Button, IconButton, useMediaQuery } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
-import { Search as SearchIcon, DoubleArrow, ArrowForward, ArrowBack } from '@material-ui/icons';
+import { Search as SearchIcon, DoubleArrow, ArrowForward, ArrowBack, ViewList } from '@material-ui/icons';
+import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import Avatar from '../Avatar';
 import Menu from './Menu';
 import ModalCreateGroup from './ModalCreateGroup/ModalCreateGroup';
-import { changeMode } from '../../../actions/user';
+import { changeMode } from '../../../actions/layout';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -42,6 +43,7 @@ const BorderTextField = withStyles({
         '& .MuiOutlinedInput-root': {
             '& fieldset': {
                 borderRadius: `20px`,
+                marginLeft: '5px'
             },
         }
     }
@@ -101,7 +103,9 @@ const UserBar = ({ handleSearchTerm }) => {
                     </Grid>
                 </Grid>
             </Box>
-            <Box my={0} width="90%">
+            <Box my={0} width="90%" >
+                <Box className={classes.center}>
+                <ViewList fontSize="large" style={{color: '#71a8db'}} />
                 <BorderTextField
                     InputProps={{
                         startAdornment: (
@@ -119,6 +123,9 @@ const UserBar = ({ handleSearchTerm }) => {
                     onChange={handleChange}
                     name="searchTerm"
                 />
+                   
+                </Box>
+               
                 <Box my={1} >
                     <Box width={1} my={2} >
                         <Box className={classes.center}>

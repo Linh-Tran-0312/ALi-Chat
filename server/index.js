@@ -131,7 +131,13 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
                  
             });
  
+            socket.on('userIsTypingMessage', data => {
+                io.to(data.conversationId).emit('getUserIsTypingMessage', { userId : data.userId});
+            });
 
+            socket.on('userStopTypingMessage', data => {
+                io.to(data.conversationId).emit('getUserStopTypingMessage', { userId : data.userId});
+            })
 
 
 

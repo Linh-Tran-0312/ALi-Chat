@@ -25,13 +25,16 @@ const useStyles = makeStyles((theme) => ({
         height: '100vh',
         backgroundColor: 'white',
         width: '100%', 
+    },
+    hidden : {
+        display: 'none'
     }
 }));
 
 
 const ChatList = ({ searchTerm, setSearchTerm }) => {
     console.log('CHAT LIST RENDER');
-    const { mode } = useSelector(state => state.layout, shallowEqual);
+    const { mode, view } = useSelector(state => state.layout, shallowEqual);
     /* const match900 = useMediaQuery('(max-width: 900px)'); */
 
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
@@ -72,8 +75,20 @@ const ChatList = ({ searchTerm, setSearchTerm }) => {
         setSearchTerm(formData.searchTerm);
     }
 
+    let css = '';
+    switch(mode) {
+        case 'XS':
+            css = classes.chatlistXS;
+            break;
+        case 'SM':
+            css = classes.chatlistSM;
+            break;
+        default:
+            css = classes.chatlist;
+    }
+    const isHidden = view.CHATLIST && view.CHATFEED && mode === 'XS';
     return (
-        <div className={ mode === 'SM' ? classes.chatlistSM : classes.chatlist}>
+        <div className={isHidden ? classes.hidden : css}>
             <UserBar
                 handleSearchTerm={handleSearchTerm}
                 searchTerm={searchTerm}

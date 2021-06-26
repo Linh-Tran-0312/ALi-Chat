@@ -350,12 +350,26 @@ ConversationController.addMember = async(data) => {
             },
             {
                 $lookup:
-                    {
-                        from: "messages",
-                        localField: "lastMessage",
-                        foreignField: "_id",
-                        as : "lastMessageInfo",
-                    }
+                {
+                    from: "messages",
+                    let: {"lastMessageId" : "$lastMessage"},
+                    pipeline : [
+                        { $match: { $expr : { $eq : ["$_id", "$$lastMessageId"]}}},
+                        {
+                            $lookup: 
+                            {
+                                from: 'users',
+                                let: {"senderId" : "$sender"},
+                                pipeline : [
+                                    { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}}
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
+
+                    ],
+                    as: "lastMessageInfo",
+                }
             },
             {
                 $lookup:
@@ -397,12 +411,26 @@ ConversationController.removeMember = async(data) => {
             },
             {
                 $lookup:
-                    {
-                        from: "messages",
-                        localField: "lastMessage",
-                        foreignField: "_id",
-                        as : "lastMessageInfo",
-                    }
+                {
+                    from: "messages",
+                    let: {"lastMessageId" : "$lastMessage"},
+                    pipeline : [
+                        { $match: { $expr : { $eq : ["$_id", "$$lastMessageId"]}}},
+                        {
+                            $lookup: 
+                            {
+                                from: 'users',
+                                let: {"senderId" : "$sender"},
+                                pipeline : [
+                                    { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}}
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
+
+                    ],
+                    as: "lastMessageInfo",
+                }
             },
             {
                 $lookup:

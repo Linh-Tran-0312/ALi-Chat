@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Container, Grid, Paper, Typography } from '@materi
 import FacebookIcon from '@material-ui/icons/Facebook';
 import GoogleIcon from '@material-ui/icons/Google';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { signIn, signUp } from '../../actions/auth';
 import Input from './Input';
@@ -45,7 +45,9 @@ const initialState = {
 }
 const Auth = () => {
     const [isSignUp, setIsSignUp] = useState(false);
-    const [formData, setFormData] = useState(initialState)
+    const [formData, setFormData] = useState(initialState);
+
+  
     const classes = useStyles();
     const dispatch = useDispatch();
     const history = useHistory();

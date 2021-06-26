@@ -2,17 +2,16 @@ import { Box, Button, Modal, TextField, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { GroupAdd as GroupAddIcon } from '@material-ui/icons';
 import React, { useContext, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import RiseLoader from 'react-spinners/RiseLoader';
+import { useDispatch, useSelector } from 'react-redux';
+import { BeatLoader} from 'react-spinners';
 import { clearSearchMembers, searchMembers } from '../../../../actions/user';
 import { SocketContext } from '../../../../context.socket';
 import MemberAdd from './MemberAdd';
 import MemberSearch from './MemberSearch';
 
 
-function getModalStyle() {
-  const top = 50;
-  const left = 50;
+function getModalStyle(top, left) {
+ 
 
   return {
     top: `${top}%`,
@@ -24,8 +23,7 @@ function getModalStyle() {
 const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
-    width: 600,
-    height: 350,
+ 
     backgroundColor: theme.palette.background.paper,
     border: '2px solid white',
     borderRadius: 10,
@@ -37,17 +35,28 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center'
   },
   inputcontainer: {
+    width: '100%',
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'flex-start'
   },
   input: {
+    width: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  button : {
+    margin: theme.spacing(1),
+  },
+  paperXS : {
+    borderRadius: 0,
+    height: '100%',
+    width: '80%',
+    padding: 40
+  }
 }));
 
 
@@ -60,8 +69,20 @@ export default function SimpleModal() {
   const [searchMem, setSearchMem] = useState("");
   const [warning, setWarning] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [modalStyle] = React.useState(getModalStyle);
+  const [ memberResults, setMemberResults ] = useState([]);
+  const{ mode }= useSelector(state => state.layout);
 
+  let top, left;
+  if(mode === 'XS') {
+     top = 0 ;
+     left = 0 ;
+  } else {
+    top = 50 ;
+    left = 50 ;
+  }
+  console.log(top,left);
+  const [modalStyle] = React.useState(getModalStyle(top,left));
+  
   const classes = useStyles();
   const dispatch = useDispatch();
   const socket = useContext(SocketContext);
@@ -83,12 +104,13 @@ export default function SimpleModal() {
     setSearchMem(formData.searchMem);
   }
 
-  useEffect(() => {
+  useEffect(async() => {
     const formData = { searchMem }
     if (!formData.searchMem) {
       dispatch(clearSearchMembers())
     } else {
-      dispatch(searchMembers(formData));
+       const list  = await searchMembers(formData);
+       setMemberResults(list);
     }
   }, [searchMem])
 
@@ -97,6 +119,8 @@ export default function SimpleModal() {
     if (!existingMember) {
       setMembers([...members, newMember])
     };
+    const updatedMemberResults = memberResults.filter(member => member._id !== newMember._id);
+    setMemberResults(updatedMemberResults);
     setWarning("")
   }
 
@@ -128,41 +152,41 @@ export default function SimpleModal() {
   }, [socket]);
 
   const body = (
-    <form style={modalStyle} className={classes.paper} onSubmit={handleSubmit} method="get">
-      {
-        isCreating ?
-          (<>
-            <RiseLoader color="#5B9BD5" size="15" css="margin-bottom: 25px" loading={true} />
-            <Typography variant="h6" color="primary">Creating Group Chat...</Typography>
-          </>
-          ) :(
-          <>
+    <form style={modalStyle} className={ mode === 'XS' ? `${classes.paper} ${classes.paperXS}` : classes.paper} onSubmit={handleSubmit} method="get">
+      
               <Box mb={4} mt={2}>
                 <Typography variant="h3" color="primary">More mems, more fun !</Typography>
               </Box>
               <Box width={1} className={classes.inputcontainer}>
                 <Box className={classes.input} mx={1}>
-                  <Box mb={2}>
+                  <Box mb={2} width={1}>
+                    <Box mb={1}>
                     <Typography variant="subtitle2" color="primary">Group Name</Typography>
-                    <TextField type="text" placeholder="Enter the name" name="name" onChange={(e) => setGroupName(e.target.value)} variant="outlined" size="small" required />
+                    </Box>
+                    <TextField style={{width: '100%'}} type="text" placeholder="Enter the name" name="name" onChange={(e) => setGroupName(e.target.value)} variant="outlined" size="small" required />
                   </Box>
-                  <MemberSearch handleSearchMem={handleSearchMem} selectMember={selectMember} resultWidth="216px" />
+                  <MemberSearch list={memberResults} handleSearchMem={handleSearchMem} selectMember={selectMember} searchWidth="100%" resultWidth="100%" />
+                  <MemberAdd members={members} handleDelete={handleDelete} warning={warning} />
                 </Box>
-                <MemberAdd members={members} handleDelete={handleDelete} warning={warning} />
               </Box>
               <Box my={3}>
-                <Button variant="contained" color="primary" type="submit" >CREATE</Button>
+                {
+                      isCreating ?
+                      (<>
+                        <BeatLoader color="#5B9BD5" size="15" css="margin-bottom: 25px" loading={true} />
+                      </> ) : ( <>
+                        <Button variant="contained" color="primary" type="submit" className={classes.button} >CREATE</Button>        
+                        <Button variant="contained" color="default" onClick={handleClose} className={classes.button} >CANCEL</Button>
+                      </>)
+                }
               </Box>
-            </>
-          )
-      }
     </form>
   );
 
   return (
     <div>
       <Box mx={2}>
-      <Button variant="contained" size="medium" color="primary" onClick={handleOpen} startIcon={<GroupAddIcon fontSize="large" />} >
+      <Button variant="contained" size="medium" style={{backgroundColor: '#71a8db', color: 'white', fontWeight: 'bold'}} onClick={handleOpen} startIcon={<GroupAddIcon fontSize="large" />} >
         Create group chat
       </Button>
       </Box>

@@ -2,9 +2,11 @@ import { Button, Grid, Box, Typography, Avatar as OAvatar, Drawer, IconButton, u
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import FormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
 import React from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { selectProfile } from '../../../actions/user';
+import { backToChatList } from '../../../actions/layout';
 import Avatar from '.././Avatar';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import ChatInfo from '../ChatInfo/ChatInfo';
@@ -26,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
-    backgroundColor: '#e5eaff'
+    backgroundColor: '#b8d0e5'
   },
   centeralign: {
     display: 'flex',
@@ -42,6 +44,40 @@ const useStyles = makeStyles((theme) => ({
   },
   root : {
     marginTop: 30
+  },
+  content_box : {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    color: '#d8d8d8'
+  },
+  info_box : {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    color: 'white'
+  },
+  menu_box : {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center'
+  },
+  linebreak1 : {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: 'calc(100vw - 200px)',
+  },
+  linebreak2 : {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    maxWidth: 'calc(100vw - 300px)',
   }
 }));
 
@@ -72,43 +108,56 @@ const FriendBar = ({ friend, conversation }) => {
 /*   const matchSM = useMediaQuery('(max-width: 1100px)'); */
   const { mode } = useSelector(state => state.layout, shallowEqual);
   const matchMD = mode === 'MD';
+  const matchSM = mode === 'SM';
+  const matchXS = mode === 'XS';
   const classes = useStyles();
   const dispatch = useDispatch();
 
   const handleSelectProfile = () => {
     dispatch(selectProfile(friend));
   }
+  const handleOpenChatInfo = () => {
+    dispatch({ type: 'VIEW_CHATINFO'});
+  }
+  const handleBackToChatList = () => {
+   
+    dispatch(backToChatList())
+  }
   return (
     <div className={classes.friendbar}>
       <StyledBox borderBottom={1} className={classes.container}>
-        <Grid container direction="row" justify="space-between" alignItems="center" >
-          <Grid item container xs={8}>
-            <Grid item xs={3} className={classes.centeralign}>
+        <Box className={classes.content_box} >
+          <Box className={classes.info_box}>
             {
-                    !conversation?.name ?  <Avatar url={friend.avatar} size={55} type={1} userId={friend._id} /> : (
-                      <Avatar url='./logoAli.png' size={60} type={2}  />
-                    )
+              matchXS &&  <Button onClick={handleBackToChatList}  ><FormatListBulletedIcon style={{color: 'white'}}/></Button>
+            }
+            {
+                    !conversation?.name ? matchXS ? <Avatar url={friend.avatar} size={40} type={1} userId={friend._id} /> : <Avatar url={friend.avatar} size={55} type={1} userId={friend._id} /> : null
                 }
-            </Grid>
-            <Grid item xs={7} container direction="row" justify="flex-start" alignItems="center">
-              <Grid item xs={12}><Typography variant="h5" color="primary" >{conversation?.name ? `${conversation.name}` : ` ${friend.lastname} ${friend.firstname}`}</Typography></Grid>
-            </Grid>
-          </Grid>
-          {
-            <Grid item xs={4} container direction="row" justify="flex-end" alignItems="center">
+          
+            <Box width={1} mx={1} >
               {
-                  conversation?.name ? matchMD ? <InfoDrawer /> : null : !matchMD ?  <Button onClick={handleSelectProfile}><AccountCircleIcon style={{color: 'white'}} /></Button> : 
-                  <>
-                  <Button onClick={handleSelectProfile}  ><AccountCircleIcon style={{color: 'white'}}/></Button>
-                  <InfoDrawer />
-                  </>
+                matchXS ?  <Typography variant="h6" color="inherit" className={conversation?.name ? classes.linebreak1 : classes.linebreak2 } >{conversation?.name ? `${conversation.name}` : `${friend.firstname}`}</Typography>
+                 : <Typography variant="h5" color="inherit" className={classes.linebreak1}>{conversation?.name ? `${conversation.name}` : ` ${friend.lastname} ${friend.firstname}`}</Typography> 
+
               }
-            
-            
-              </Grid>
+            </Box>    
+          </Box>
+          {
+           <Box className={classes.menu_box}>
+              {
+                 !conversation?.name  &&  <Button onClick={handleSelectProfile}  ><AccountCircleIcon style={{color: 'white'}}/></Button>
+              }
+              {
+                  (matchMD || matchSM)  &&  <InfoDrawer />  
+              }
+              { 
+                matchXS && <Button onClick={handleOpenChatInfo}  ><MoreHorizIcon style={{color: 'white'}}/></Button>
+              }
+              </Box>
 
           }
-        </Grid>
+        </Box>
       </StyledBox>
     </div>
   )

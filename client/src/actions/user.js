@@ -12,8 +12,9 @@ export const getUserProfile = (id) => async(dispatch) => {
 export const selectProfile = (profile) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_PROFILE", payload: profile});
-        dispatch({ type: "SELECT_CONVERSATION", payload: null});
-        dispatch({ type: "SELECT_USER_RESULT", payload: null})
+        dispatch({type: "VIEW_PROFILE"});
+  /*       dispatch({ type: "SELECT_CONVERSATION", payload: null});
+        dispatch({ type: "SELECT_USER_RESULT", payload: null}) */
     } catch (error) {
         console.log(error, error.message);
     }
@@ -35,8 +36,8 @@ export const updateAvatar = (formData) => async(dispatch) => {
 export const selectUserResult = (user) => async(dispatch) => {
     try {
         dispatch({ type: "SELECT_USER_RESULT", payload: user});
-        dispatch({ type: "SELECT_PROFILE", payload: null});
-        dispatch({ type: "SELECT_CONVERSATION", payload: null});
+        dispatch({ type: "VIEW_CHATFEED"});
+       
     } catch (error) {
         console.log(error, error.message);
     }
@@ -49,10 +50,10 @@ export const selectUserResult = (user) => async(dispatch) => {
         console.log(error, error.message);
      }
  }
- export const searchMembers = (formData) => async(dispatch) => {
+ export const searchMembers = async(formData) => {
      try {
         const { data } = await api.fetchMembers(formData);
-        dispatch({ type: "FETCH_MEMBERS", payload : data })
+       return data;
      } catch (error) {
         console.log(error, error.message);
      }
@@ -68,21 +69,6 @@ export const selectUserResult = (user) => async(dispatch) => {
  export const updateOnlineUsers = (users) => async(dispatch) => {
      try {
         dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
-     } catch (error) {
-        console.log(error, error.message);
-     }
- }
-
- export const changeScreen  = (screen) => async(dispatch) => {
-    try {
-        dispatch({ type: "SET_SCREEN", payload : screen })
-     } catch (error) {
-        console.log(error, error.message);
-     }
- }
- export const changeMode = (mode) => async(dispatch) => {
-    try {
-        dispatch({ type: "SET_MODE", payload : mode })
      } catch (error) {
         console.log(error, error.message);
      }

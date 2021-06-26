@@ -1,11 +1,13 @@
-import { Accordion, AccordionDetails, AccordionSummary, Avatar, Box, Button, Grid, Typography } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Avatar, Box, Button, Grid, GridList,  Typography } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PermContactCalendarIcon from '@material-ui/icons/PermContactCalendar';
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
-import React, { useContext, useEffect, useState } from 'react';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearSearchMembers, searchMembers } from '../../../actions/user';
 import { SocketContext } from '../../../context.socket';
@@ -14,7 +16,7 @@ import Member from './Member';
 import Thumbnail from './Thumbnail';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     title: {
         width: '100%',
         minHeight: 200,
@@ -23,11 +25,23 @@ const useStyles = makeStyles(() => ({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
+        color: '#71a8db'
     },
     details: {
         width: '100%',
         
         backgroundColor: 'white'
+    },
+    thumbnail_container : {
+        display: 'flex',
+        flexWrap: 'wrap',
+        padding: '5px'
+       
+    },
+    gridList: {
+        width: '100%',
+        height: '100%',
+       
     },
     chatinfo: {
         height: '100vh',
@@ -53,7 +67,7 @@ const useStyles = makeStyles(() => ({
     chatinfoSM: {
         width: '300px',
     },
-    chatinfoSM: {
+    chatinfoXS: {
         width: '100%',
     }
 }));
@@ -81,7 +95,6 @@ const ChatInfo = () => {
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
     const { mode } = useSelector(state => state.layout);
     const matchMD = mode === 'MD';
- /*    const matchSM = useMediaQuery('(max-width: 1100px)'); */
 
     const conversation = useSelector(state => state.conversation);
     const attachments = conversation?.attachments;
@@ -89,11 +102,14 @@ const ChatInfo = () => {
     const dispatch = useDispatch();
     const socket = useContext(SocketContext);
 
+    const [ memberResults, setMemberResults ] = useState([]);
     const [searchMem, setSearchMem] = useState("");
-    const [expanded, setExpanded] = useState('member');
-    
+    const [expandedMember, setExpandedMember] = useState('member');
+    const [expandedPhoto, setExpandedPhoto] = useState('photo');
+    const [ isRemoving, setIsRemoving ] = useState(false);
+
     const addMember = (member) => {
-        if (!conversation.people.find(person => person == member._id)) {
+        if (!conversation.people.find(person => person === member._id)) {
             conversation.people.push(member._id);
             socket.emit('addMember', { conversationId: conversation._id, people: conversation.people, userId: member._id })
         }
@@ -106,6 +122,7 @@ const ChatInfo = () => {
     }
 
     const leaveGroup = () => {
+        setIsRemoving(true);
         const people = conversation.people.filter(member => member !== userId)
         socket.emit('removeMember', { conversationId: conversation._id, people, userId, isRemoved: false })
     }
@@ -113,28 +130,53 @@ const ChatInfo = () => {
     const handleSearchMem = (formData) => {
         setSearchMem(formData.searchMem);
     }
+    const handleBackFromChatInfo = () => {
+        dispatch({ type: 'VIEW_CHATFEED'})
+    }
 
-    useEffect(() => {
+    useEffect(async() => {
         const formData = { searchMem }
         if (!formData.searchMem) {
             dispatch(clearSearchMembers())
         } else {
-            dispatch(searchMembers(formData));
+            const list = await searchMembers(formData);
+            setMemberResults(list)
         }
     },[searchMem]);
 
-    const handleChange = (panel) => (event, newExpanded) => {
-        setExpanded(newExpanded ? panel : false);
+    const handleChangeMember = (panel) => (event, newExpanded) => {
+        setExpandedMember(newExpanded ? panel : false);
+    };
+    const handleChangePhoto = (panel) => (event, newExpanded) => {
+        setExpandedPhoto(newExpanded ? panel : false);
     };
 
     useEffect(() => {
-        setExpanded(false);
-        dispatch(clearSearchMembers())
-    }, [conversation])
+        setExpandedMember(false);
+        setExpandedPhoto(false);
+        dispatch(clearSearchMembers());
+        setIsRemoving(false);
+        setMemberResults([]);
+    }, [conversation]);
 
+    let css = '';
+    switch(mode) {
+        case 'LG':
+            css = classes.chatinfo;
+            break;
+        case 'XS':
+            css = `${classes.chatinfo} ${classes.chatinfoXS}`;
+            break;
+        default:
+            css = `${classes.chatinfo} ${classes.chatinfoSM}`;
+    }
     if (conversation)
         return (
-            <Box className={ matchMD ? `${classes.chatinfo} ${classes.chatinfoSM}` : `${classes.chatinfo}`}>
+            <Box className={css}>
+                {
+                    mode === 'XS' &&  <Box my={2} mx={3}><Button onClick={handleBackFromChatInfo} variant="contained" color="default" size="small" startIcon={<KeyboardBackspaceIcon />}>Back</Button>
+                    </Box> 
+                }
                 <Box className={classes.title}>
                     <StyledAvaGroup max={4} spacing="small">
                         {
@@ -142,7 +184,7 @@ const ChatInfo = () => {
                         }
                     </StyledAvaGroup>
                     <Box my={2} px={2}>
-                        <Typography variant="h5" color="primary">
+                        <Typography variant="h5" color="inherit">
                             {
                                 conversation.name ? `${conversation.name}` :
                                     `${conversation?.peopleInfo[0]?.firstname} and ${conversation?.peopleInfo[1]?.firstname}`
@@ -153,7 +195,7 @@ const ChatInfo = () => {
                 <Box className={classes.details}>
                     {
                         conversation?.name ? (
-                            <StyledAccordion square classes={{ expanded: classes.expanded }} expanded={expanded === 'member'} onChange={handleChange('member')}>
+                            <StyledAccordion square classes={{ expanded: classes.expanded }} expanded={expandedMember === 'member'} onChange={handleChangeMember('member')}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls="panel1a-content"
@@ -167,7 +209,7 @@ const ChatInfo = () => {
                                         {
                                             conversation.host === userId &&
                                             (<Box width="100%" textAlign="left" mb={2}>
-                                                <MemberSearch handleSearchMem={handleSearchMem} selectMember={addMember} searchWidth="100%" resultWidth="100%" />
+                                                <MemberSearch list={memberResults} handleSearchMem={handleSearchMem} selectMember={addMember} searchWidth="100%" resultWidth="100%" />
                                             </Box>)
                                         }
                                         {
@@ -178,7 +220,9 @@ const ChatInfo = () => {
                                         {
                                             conversation.host !== userId ? 
                                             (<Box my={2}>
-                                                <Button variant="contained" size="small" color="secondary" onClick={leaveGroup} endIcon={<ExitToAppIcon />}>Leave Group</Button>
+                                                {
+                                                    isRemoving ? <CircularProgress color="secondary" size={20}/> : <Button variant="contained" size="small" color="secondary" onClick={leaveGroup} endIcon={<ExitToAppIcon />}>Leave Group</Button>
+                                                }
                                             </Box>) : null
                                         }
                                     </div>
@@ -186,7 +230,7 @@ const ChatInfo = () => {
                             </StyledAccordion>
                         ) : null
                     }
-                    <StyledAccordion square>
+                    <StyledAccordion square classes={{ expanded: classes.expanded }} expanded={expandedPhoto === 'photo'} onChange={handleChangePhoto('photo')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel2a-content"
@@ -196,9 +240,15 @@ const ChatInfo = () => {
                             <Typography variant="body1" color="textPrimary" gutterBottom>Photos</Typography>
                         </AccordionSummary>
                         <AccordionDetails >
-                            <Grid container style={{ width: '100%' }} >
-                                { attachments.reverse().map((attachment, index) => <Thumbnail key={index} url={attachment} />)}
-                            </Grid>
+                          {/*   <Grid container wrap="wrap" style={{ width: '100%' }} >
+                                { [...attachments].reverse().map((attachment, index) => <Thumbnail key={index} url={attachment} />)}
+                            </Grid> */}
+                             <ul className={classes.thumbnail_container}>
+                           
+                            { [...attachments].reverse().map((attachment, index) => <Thumbnail key={index} url={attachment} />)}
+
+                            
+                            </ul>
                         </AccordionDetails>
                     </StyledAccordion>
                 </Box>

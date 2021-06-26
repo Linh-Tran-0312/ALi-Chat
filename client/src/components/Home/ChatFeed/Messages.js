@@ -5,10 +5,10 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { SocketContext } from '../../../context.socket.js';
 import MyMessage from './MyMessage';
 import TheirMessage from './TheirMessage.js';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import TypingMessage from './TypingMessage';
 import { setIsLoadingMore } from '../../../actions/chat';
 import NotifyMessage from './NotifyMessage.js';
-
+import {BeatLoader} from 'react-spinners';
 const useStyles = makeStyles((theme) => ({
   messages: {
     width: '100%',
@@ -35,13 +35,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Messages = ({ loadedMore }) => {
+const Messages = ({ loadedMore, conversation }) => {
   console.log('Messages render')
   const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
 
   const userResult = useSelector(state => state.userResult);
-  const { messages, isLoadingMore, isSent } = useSelector(state => state.messages, shallowEqual);
+  const { messages, isLoadingMore, isSent} = useSelector(state => state.messages, shallowEqual);
  
+  const [ typingList, setTypingList ] = useState([]);
+  console.log(typingList)
   const dispatch = useDispatch();
   const classes = useStyles();
 
@@ -79,6 +81,22 @@ const Messages = ({ loadedMore }) => {
     }
   },[messages]);
 
+  useEffect(() => {
+    socket.on('getUserIsTypingMessage', data => {
+      if(data.userId !== currentUserId) {
+        const userTyping = conversation?.peopleInfo?.find(person => person._id === data.userId);
+        setTypingList([...typingList, userTyping]);
+      }
+    })
+  },[messages]);
+
+  useEffect(() => {
+    socket.on('getUserStopTypingMessage', data => {
+      const newList = typingList.filter(user => user._id !== data.userId)
+      setTypingList(newList)
+    })
+  },[messages])
+
   const renderMessages = () => {
     return (messages.map((message, index) => {
       if (message.isNotify) {
@@ -101,13 +119,14 @@ const Messages = ({ loadedMore }) => {
     <div className={classes.messages} onScroll={myFunction} ref={chatTop}>
       {
         isLoadingMore ? (
-          <Box width={1} mt={2} textAlign="center">
-            <CircularProgress />
-          </Box>
+          <Box width={1} my={2} textAlign="center" ><BeatLoader color="#5B9BD5" size={13} css="margin-bottom: 25px" loading={true} /></Box>
         ) : null
       }
       {
-        messages.length === 0 && !userResult ? <Box width={1} textAlign="center" ><CircularProgress /></Box> : renderMessages()
+        messages.length === 0 && !userResult ? <Box width={1} my={2} textAlign="center" ><BeatLoader color="#5B9BD5" size={13} css="margin-bottom: 25px" loading={true} /></Box> : renderMessages()
+      }
+      {
+        messages.length !== 0 && (typingList?.map((user, index) => <TypingMessage key={index} avatar={user?.avatar} userId={user?._id} />))
       }
       <div ref={chatBottom} />
     </div>

@@ -56,7 +56,7 @@ const ImageModal = ({url, maxWidth, minWidth, minHeight, maxHeight, border}) => 
             </Box>
     );
     return (
-        <div>
+        <div style={{minWidth, maxWidth, minHeight, maxHeight}}>
             <img src={url} style={{minWidth, maxWidth, minHeight, maxHeight, borderRadius: border, objectFit: 'cover', cursor: 'pointer'}} onClick={handleOpen}/>
             <Modal
                 open={open}

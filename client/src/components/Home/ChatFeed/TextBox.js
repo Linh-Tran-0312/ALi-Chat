@@ -2,7 +2,7 @@ import { Box, IconButton, InputAdornment, Paper, InputBase, TextField } from '@m
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { sendMessage } from '../../../actions/chat';
 import { SocketContext } from './../../../context.socket';
@@ -114,9 +114,18 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
     const handleSetSearchTerm = () => {
         if (conversation?._id) {
             setSearchTerm("");
+        };
+        if(text) {
+            socket.emit('userIsTypingMessage', { conversationId: conversation._id, userId: currentUserId })
+        } else {
+            socket.emit('userStopTypingMessage', { conversationId: conversation._id, userId: currentUserId })
         }
     }
 
+    const handleUserStopTyping = () => {
+         socket.emit('userStopTypingMessage', { conversationId: conversation._id, userId: currentUserId })
+    }
+  
     return (
         <StyledBox width={1} borderTop={2} className={classes.textbox}  >
             <Paper component="form" onSubmit={handleSubmit} style={{ width: '90%' }} className={classes.centeralign}>               
@@ -132,6 +141,7 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                     inputProps={{ 'aria-label': '&nbsp;&nbsp; Say something...' }}
                     onChange={setNewMessage}
                     onFocus={handleSetSearchTerm}
+                    onBlur={handleUserStopTyping}
                 />
                 <IconButton type="submit">
                     <SendIcon />

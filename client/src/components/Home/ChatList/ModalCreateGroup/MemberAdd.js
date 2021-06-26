@@ -11,7 +11,6 @@ const useStyles = makeStyles(() => ({
     border: '1px solid #c9c9c9',
     borderRadius: 5,
     flexWrap: 'wrap',
-    padding: 10,
     overflow: 'auto'
   },
   chip: {
@@ -42,12 +41,13 @@ const MemberAdd = ({ members, handleDelete, warning }) => {
   const classes = useStyles();
   
   return (
-    <Box mx={2} width="50%">
+    <Box  my={1} width={1}>
       <Typography variant="subtitle2" color="primary">Added Members</Typography>
-      <Box className={classes.output} >
+      <Box mt={1} className={classes.output} >
         {
           members.length !== 0 ? members.map((member, index) =>
             <MemberTag
+              key={index}
               handleDelete={handleDelete}
               src={member.avatar}
               memberIndex={index}

@@ -24,13 +24,18 @@ const useStyles = makeStyles(() => ({
             borderRadius: '5px',
         },
         '& .MuiListItemText-primary': {
-            color: '#5B9BD5',
-           
+            color: '#5B9BD5',       
             fontSize: '15px',
-            marginLeft: 5
+            marginLeft: 5,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
         },
         '& .MuiListItemText-secondary': {
-            marginLeft: 5
+            marginLeft: 5,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
         }
     },
     icon: {
@@ -46,7 +51,9 @@ const useStyles = makeStyles(() => ({
         fontWeight: 'bold !important', 
     },
     selected: {
-        backgroundColor: '#e0f1fb',
+       
+      /*   backgroundColor: '#e0f1fb', */
+        backgroundColor: '#f2f4ff',
         borderRadius: '5px',
     },
 }));
@@ -80,7 +87,7 @@ const Conversation = ({ conversation }) => {
     let partner = conversation.peopleInfo?.find(x => x._id !== currentUser._id);
 
     const isGroupConversation = conversation.name ? true : false
-    const lastMessageSender = conversation?.lastMessageInfo[0]?.senderInfo[0];
+    const lastMessageSender = conversation?.lastMessageInfo[0]?.senderInfo[0] || '';
 
     if (isGroupConversation) {
         name = conversation.name;
@@ -95,14 +102,7 @@ const Conversation = ({ conversation }) => {
         lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You have sent an image` : (isGroupConversation ? `${lastMessageSender.firstname} have sent an image` : "Sent an image");
     }
     else {
-        if (conversation?.lastMessageInfo[0]?.text.length < 25) {
-            lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${conversation?.lastMessageInfo[0]?.text}` : (isGroupConversation ? `${lastMessageSender.firstname}: ${conversation?.lastMessageInfo[0]?.text}` : conversation?.lastMessageInfo[0]?.text);
-        } else {
-            lastMessage = conversation?.lastMessageInfo[0]?.text;
-            lastMessage = lastMessage?.substring(0, 25)
-            lastMessage = `${lastMessage}...`;
-            lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${lastMessage}` : (isGroupConversation ? `${lastMessageSender.firstname}: ${lastMessage}` : lastMessage);
-        }
+        lastMessage = currentUser._id === conversation.lastMessageInfo[0].sender ? `You: ${conversation?.lastMessageInfo[0]?.text}` : (isGroupConversation ? `${lastMessageSender.firstname}: ${conversation?.lastMessageInfo[0]?.text}` : conversation?.lastMessageInfo[0]?.text);
     }
 
     const handleSelect = () => {
@@ -110,7 +110,10 @@ const Conversation = ({ conversation }) => {
             socket.emit('userReadLastMessage', { conversationId: conversation?._id, messageId: conversation.lastMessageInfo[0]._id, userId: currentUser?._id });
             setIsRead(true);
         }
-        dispatch(selectConversation(conversation));
+        if(conversation._id !== currentConversation?._id || !currentConversation ) {
+            dispatch(selectConversation(conversation));
+        }
+        
     }
 
     if(mode === 'SM') {
@@ -125,10 +128,10 @@ const Conversation = ({ conversation }) => {
                     (
                         <AvatarGroup  max={2} spacing={23}>
                             {
-                                <OAvatar src={conversation?.hostInfo[0]?.avatar}/>
+                                <OAvatar key={'a'} src={conversation?.hostInfo[0]?.avatar}/>
                             }
                             {
-                                conversation?.peopleInfo.map((member) => {if(member._id !== conversation.host) return <OAvatar src={member.avatar} /> })
+                                conversation?.peopleInfo.map((member, index) => {if(member._id !== conversation.host) return <OAvatar key={index} src={member.avatar} /> })
                             }    
                         </AvatarGroup>
                     )
@@ -153,7 +156,7 @@ const Conversation = ({ conversation }) => {
                                 <OAvatar src={conversation?.hostInfo[0]?.avatar}/>
                             }
                             {
-                                conversation?.peopleInfo.map((member) => {if(member._id !== conversation.host) return <OAvatar src={member.avatar} /> })
+                                conversation?.peopleInfo.map((member, index) => {if(member._id !== conversation.host) return <OAvatar key={index} src={member.avatar} /> })
                             }    
                         </AvatarGroup>
                     )

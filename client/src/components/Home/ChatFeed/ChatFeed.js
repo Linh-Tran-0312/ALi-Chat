@@ -43,9 +43,9 @@ const ChatFeed = ({ setSearchTerm }) => {
 
     const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
 
-    const conversation = useSelector(state => state.conversation);
-    const userResult = useSelector(state => state.userResult);
-    const lastMessage = useSelector(state => state.lastMessage);
+    const conversation = useSelector(state => state.conversation, shallowEqual);
+    const userResult = useSelector(state => state.userResult, shallowEqual);
+    const lastMessage = useSelector(state => state.lastMessage, shallowEqual);
 
     const classes = useStyles();
     const dispatch = useDispatch();
@@ -92,6 +92,9 @@ const ChatFeed = ({ setSearchTerm }) => {
 
     let css = '';
     switch(mode) {
+        case 'XS':
+            css = classes.chatfeedXS;
+            break;
         case 'MD':
             css = classes.chatfeedMD;
             break;
@@ -105,8 +108,8 @@ const ChatFeed = ({ setSearchTerm }) => {
     return (
         <div className={css}>
             <FriendBar friend={currentFriend} conversation={conversation} />
-            <Messages loadedMore={loadedMore} />
-            <TextBox conversation={conversation} friendId={currentFriend._id} setSearchTerm={setSearchTerm} />
+            <Messages loadedMore={loadedMore}  conversation={conversation}/>
+            <TextBox conversation={conversation} friendId={currentFriend?._id} setSearchTerm={setSearchTerm} />
         </div>
     )
 }

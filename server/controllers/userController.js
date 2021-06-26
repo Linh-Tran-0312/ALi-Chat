@@ -231,7 +231,9 @@ UserController.searchMembers = async(req,res) => {
                 $match : { $text: { $search : searchMem}}
             }
         ]);
-        return res.status(200).json(userList)
+        const list = userList.filter(user => user._id != req.user.id);
+        console.log(list);
+        return res.status(200).json(list)
     } catch (error) {
         console.log(error)
     }

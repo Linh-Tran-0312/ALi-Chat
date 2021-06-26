@@ -2,7 +2,7 @@ import { ListItem, ListItemAvatar, ListItemIcon, ListItemText } from '@material-
 import { makeStyles } from '@material-ui/core/styles';
 import FiberNewIcon from '@material-ui/icons/FiberNew';
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectConversation } from '../../../actions/chat';
 import { selectUserResult } from '../../../actions/user';
 import Avatar from '../Avatar';
@@ -48,7 +48,7 @@ const useStyles = makeStyles(() => ({
 const SearchResult = ({ user }) => {
 
     const classes = useStyles();
-
+    const currentConversation = useSelector(state => state.conversation)
     const dispatch = useDispatch();
 
     let name = "";
@@ -61,7 +61,9 @@ const SearchResult = ({ user }) => {
 
     const handleSelect = () => {
         if (user.conversation) {
-            dispatch(selectConversation(user.conversation));
+            if(user.conversation._id !== currentConversation?._id) {
+                dispatch(selectConversation(user.conversation));
+            }       
         }
         else {
             dispatch(selectUserResult(user));
