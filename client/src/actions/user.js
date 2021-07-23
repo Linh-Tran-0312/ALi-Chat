@@ -1,29 +1,14 @@
 
 import * as api from '../api/index';
 
-export const getUserProfile = (id) => async(dispatch) => {
-    try {
-        const { data } = await api.fetchUserProfile(id);
-        dispatch({ type: "FETCH_PROFILE", payload: data});
-    } catch (error) {
-        console.log(error, error.message);
-    }
-};
 export const selectProfile = (profile) => async(dispatch) => {
-    try {
         dispatch({ type: "SELECT_PROFILE", payload: profile});
         dispatch({type: "VIEW_PROFILE"});
-  /*       dispatch({ type: "SELECT_CONVERSATION", payload: null});
-        dispatch({ type: "SELECT_USER_RESULT", payload: null}) */
-    } catch (error) {
-        console.log(error, error.message);
-    }
 };
-export const updateAvatar = (formData) => async(dispatch) => {
-    console.log("da toi action")
+
+export const updateAvatar = (userId, formData) => async(dispatch) => {
     try {
-        const { data } = await api.updateAvatar(formData);
-        console.log(data);
+        const { data } = await api.updateAvatar(userId, formData);
         dispatch({ type: "FETCH_PROFILE", payload: data});
         dispatch({ type: "SET_AVATAR", payload: data });
         dispatch({ type: "SET_PROFILE", payload: data})
@@ -33,43 +18,41 @@ export const updateAvatar = (formData) => async(dispatch) => {
     }
 }
 
-export const selectUserResult = (user) => async(dispatch) => {
+export const updateProfile = (id, formData) => async(dispatch) => { 
     try {
-        dispatch({ type: "SELECT_USER_RESULT", payload: user});
-        dispatch({ type: "VIEW_CHATFEED"});
-       
+        const { data } = await api.updateProfile(id, formData);
+        dispatch({ type: "FETCH_PROFILE", payload: data});
+        dispatch({ type: "SET_PROFILE", payload: data})
+        dispatch({type: "VIEW_PROFILE"});
     } catch (error) {
-        console.log(error, error.message);
+        console.log(error);  
     }
 }
+
+export const selectUserResult = (user) => async(dispatch) => {
+    dispatch({ type: "SELECT_USER_RESULT", payload: user});
+    dispatch({ type: "VIEW_CHATFEED"});
+    dispatch({ type: "SELECT_CONVERSATION", payload : null});
+}
+
  export const searchFriends = (formData) => async(dispatch) => {
      try {
          const { data } = await api.fetchFriends(formData);
          dispatch({ type: "FETCH_FRIENDS", payload : data })
      } catch (error) {
-        console.log(error, error.message);
+        console.log(error);
      }
- }
- export const searchMembers = async(formData) => {
+}
+
+export const searchMembers = async(formData) => {
      try {
         const { data } = await api.fetchMembers(formData);
        return data;
      } catch (error) {
-        console.log(error, error.message);
+        console.log(error);
      }
- }
- export const clearSearchMembers = () => async(dispatch) => {
-    try {
-        dispatch({ type: "FETCH_MEMBERS", payload : [] })
-     } catch (error) {
-        console.log(error, error.message);
-     }
- }
+}
 
- export const updateOnlineUsers = (users) => async(dispatch) => {
-     try {
-        dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
-     } catch (error) {
-        console.log(error, error.message);
-     }
- }
+export const updateOnlineUsers = (users) => async(dispatch) => {
+    dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
+}

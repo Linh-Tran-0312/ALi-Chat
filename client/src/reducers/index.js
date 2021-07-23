@@ -1,21 +1,25 @@
 import { combineReducers } from 'redux';
 
-/* import {userReducer} from './userReducer';
-import {authReducer} from './authReducer';
-import {messageReducer} from './messageReducer';
-import {conversationReducer} from './conversationReducer'; */
-
- import conversations from './conversations';
+import conversations from './conversations';
 import conversation from './conversation';
 import auth from './auth';
-import user from './user';
 import profile from './profile';
 import friends from './friends';
 import messages from './messages';
-import lastMessage from './lastMessage';
 import userResult from './userResult';
-import members from './memberSearch'; 
 import onlineUsers from './onlineUsers';
 import layout from './layout';
+import error from './error';
 
-export default combineReducers({ layout, conversation, conversations, auth, user, profile, friends, messages, lastMessage, userResult, members, onlineUsers});
+const appReducer = combineReducers({ layout, error, conversation, conversations, auth, profile, friends, messages, userResult, onlineUsers});
+
+const rootReducer = (state, action) => {
+    if (action.type === 'USER_LOGOUT') {
+        localStorage.clear();
+      return appReducer(undefined, action)
+    }
+  
+    return appReducer(state, action)
+  }
+
+  export default rootReducer

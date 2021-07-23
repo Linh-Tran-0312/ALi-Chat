@@ -4,6 +4,5 @@ export default (onlineUsers = [], action) => {
             return action.payload;
         default:
             return onlineUsers;
-
     }
 }

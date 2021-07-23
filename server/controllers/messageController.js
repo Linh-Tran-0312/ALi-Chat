@@ -28,6 +28,15 @@ MessageController.getAllMessagesByConversationId = async (req, res) => {
                 }
             },
             {
+               
+                $project: 
+                    { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                        "lastMessageInfo.senderInfo.password": 0,"lastMessageInfo.senderInfo.email" : 0,"lastMessageInfo.senderInfo.googleId" : 0,"astMessageInfo.senderInfo.facebookId" : 0,
+                        "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                    }
+               
+            },
+            {
                 $sort: { "createdAt": 1 }
             }
         ]);
@@ -38,6 +47,7 @@ MessageController.getAllMessagesByConversationId = async (req, res) => {
     }
 
 };
+
 MessageController.getAllMessages =  async (conversationId) => {
     try {
         const messages = await Message.aggregate([
@@ -84,7 +94,8 @@ MessageController.getAllMessages =  async (conversationId) => {
     } catch (error) {
         console.log(error)
     }
-}
+};
+
 MessageController.getPreMessages = async(conversationId, time) => {
 
     try {
@@ -97,6 +108,11 @@ MessageController.getPreMessages = async(conversationId, time) => {
                 localField: "sender",
                 foreignField: "_id",
                 as: "senderInfo",
+            }
+        },
+        {
+            $project: 
+            { "senderInfo.password": 0, "senderInfo.email": 0,"senderInfo.googleId": 0,"senderInfo.facebookId": 0,
             }
         },
         {
@@ -113,146 +129,39 @@ MessageController.getPreMessages = async(conversationId, time) => {
     } catch (error) {
         console.log(error)
     }
-}
-MessageController.createMessage = async(req,res) => {
+};
 
-    const { conversation, sender, recipients, attachment, text} = req.body
-    let conversationId = conversation;
-   
-    try {
-        if(!conversation) {
-            let newConversation = {
-                people: [...recipients]
-            };
-
-            newConversation = await Conversation.create({...newConversation});
-            conversationId = newConversation._id;
-        
-        }
-        const newMessage = await Message.create({conversation : conversationId, sender, recipients, attachment, text});
-        let currentConversation = await Conversation.findById(conversationId);
-        if(newMessage.attachment) {
-          
-            currentConversation.attachments.push(newMessage.attachment);
-        } 
-        currentConversation.lastMessage = newMessage._id;
-        currentConversation = await Conversation.findByIdAndUpdate(conversationId,{...currentConversation}, { new: true})
-        return res.status(200).json({message : newMessage, conversation : currentConversation })
-    } catch (error) {
-        return res.status(500).json({ message: 'Something went wrong!'});
-    }
-}
 MessageController.addMessage = async(message) => {
     if(message.text) {
         try {
             let newMessage =  await Message.create({...message})
-           const currentConversation = await Conversation.findById(message.conversation);
-           currentConversation.lastMessage = newMessage._id;
-
-           await Conversation.findByIdAndUpdate(currentConversation._id, {...currentConversation}, { new : true });
+            let currentConversation = await Conversation.findByIdAndUpdate(message.conversation, {lastMessage: newMessage._id}, { new : true });
           
-           newMessage = await Message.aggregate([
-            {
-                $match: { _id: new mongoose.Types.ObjectId(newMessage._id) }
-            },
-            {
-                $lookup : {
-                        from: 'users',
-                        let : { "userId" : "$sender"},
-                        pipeline: [
-                            { $match : { $expr : { $eq : ["$_id", "$$userId"]}} },
-                            { $project: { "_id": 1, "avatar": 1, "lastname" : 1, "firstname" : 1}}
-                        ],
-                        as : "senderInfo"
-                }
-            },
-            {
-                $lookup: {
-                    from: "users",
-                    localField: "isReadBy",
-                    foreignField: "_id",
-                    as: "isReadByInfo",
-                }
-            },
-            {
-                $project : 
-                {
-                    _id : 1, recipients: 1, isFirst: 1, isNotify: 1, isReadBy: 1, conversation: 1,sender: 1,
-                    attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1
-                }
-            },
-            {
-                $sort: { "createdAt": -1 }
-            },
-            {
-                $limit: 10
-            },
-            {
-                $sort: {"createdAt": 1}
-            }
-        ]);
-           return newMessage[0]
+            newMessage = await Message.getMessageInfo(newMessage._id)
+            currentConversation = await Conversation.getConversationInfo(message.conversation)
+
+            return {message: newMessage, conversation: currentConversation}
 
        } catch (error) {
            console.log(error)
        }
     } else {
         try {
-            console.log(typeof os.tmpdir());
             const finalPath = path.join(os.tmpdir(), message.attachment.name);
                    
-             fs.writeFileSync(finalPath, message.attachment.body);
+            fs.writeFileSync(finalPath, message.attachment.body);
             const result = await cloudinary.uploader.upload(finalPath); 
-             const url = result.url;
-             message.attachment = url;
+            const url = result.secure_url;
+            message.attachment = url;
             let newMessage =  await Message.create({...message })
-             const currentConversation = await Conversation.findById(message.conversation);
-             currentConversation.lastMessage = newMessage._id;
-             currentConversation.attachments.push(url);
-             await Conversation.findByIdAndUpdate(currentConversation._id, {...currentConversation}, { new : true });
+         
+            let currentConversation = await Conversation.findByIdAndUpdate(message.conversation, { lastMessage: newMessage._id, $push : { 'attachments': url}}, { new : true });
+      
+            newMessage = await Message.getMessageInfo(newMessage._id)
+            currentConversation = await Conversation.getConversationInfo(message.conversation)
             
-             newMessage = await Message.aggregate([
-                {
-                    $match: { _id: new mongoose.Types.ObjectId(newMessage._id) }
-                }, 
-                {
-                    $lookup : {
-                            from: 'users',
-                            let : { "userId" : "$sender"},
-                            pipeline: [
-                                { $match : { $expr : { $eq : ["$_id", "$$userId"]}} },
-                                { $project: { "_id": 1, "avatar": 1, "lastname" : 1, "firstname" : 1}}
-                            ],
-                            as : "senderInfo"
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        localField: "isReadBy",
-                        foreignField: "_id",
-                        as: "isReadByInfo",
-                    }
-                },
-                {
-                    $project : 
-                    {
-                        _id : 1, recipients: 1, isFirst: 1, isNotify: 1, isReadBy: 1, conversation: 1,sender: 1,
-                        attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1
-                    }
-                },
-                {
-                    $sort: { "createdAt": -1 }
-                },
-                {
-                    $limit: 10
-                },
-                {
-                    $sort: {"createdAt": 1}
-                }
-            ]);
-               return newMessage[0]
-              
+            return {message: newMessage, conversation: currentConversation}  ;
+
         } catch(error) {
             console.log(error)
         }   
@@ -267,6 +176,8 @@ MessageController.userReadLastMessage = async(data) => {
         if(!message.isReadBy.some(user => user === userId)) {
             await Message.updateOne({ _id: messageId },{ $push: { isReadBy: userId}});
         }
+        const updatedMessage = await Message.getMessageInfo(messageId)
+        return updatedMessage;
     } catch (error) {
         console.log(error)
     }

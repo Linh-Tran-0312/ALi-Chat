@@ -1,36 +1,67 @@
 import * as api from '../api';
 
-export const signIn = (formData, history) => async(dispatch) => {
+export const signIn = (formData, history) => async (dispatch) => {
     try {
         const { data } = await api.signIn(formData);
-        dispatch({ type: "AUTH", data});
+       
+        dispatch({ type: "AUTH", payload: data });
         history.push('/chat');
     } catch (error) {
+        if (error.response) {
+            dispatch({ type: "LOGIN_ERROR", payload: error.response.data.message })
+        } else {
+            dispatch({ type: "LOGIN_ERROR", payload: "Oops sorry, something went wrong. Please try again. " })
+        }
         console.log(error);
     }
 }
-export const signUp = (formData, history) => async(dispatch) => {
+export const signUp = (formData, history) => async (dispatch) => {
     try {
-        console.log(formData);
         const { data } = await api.signUp(formData);
-        
-        dispatch({ type: "AUTH", data});
+        dispatch({ type: "AUTH", payload: data });
         history.push('/chat');
     } catch (error) {
-        console.log(error, error.message);
+        if (error.response) {
+            dispatch({ type: "LOGIN_ERROR", payload: error.response.data.message })
+        } else {
+            dispatch({ type: "LOGIN_ERROR", payload: "Oops sorry, something went wrong. Please try again. " })
+        }
+        console.log(error);
     }
 }
 
-export const logout = (history) => async(dispatch) => {
+export const signInWithGoogle = (tokenId, history) => async (dispatch) => {
     try {
-        dispatch({ type: 'SELECT_PROFILE', payload: null});
-        dispatch({ type: "SELECT_CONVERSATION", payload: null});
-        dispatch({ type: "SELECT_USER_RESULT", payload: null});
-        dispatch({ type: 'LOGOUT'});
-        history.push('/');
+        const { data } = await api.signInWithGoogle(tokenId);
+        dispatch({ type: "AUTH", payload: data });
+        history.push('/chat');
     } catch (error) {
-        
+        dispatch({ type: "ERROR_MESSAGE", payload: "Google Sign In was unsuccessful. Try again later" });
+    }
+}
+export const signInWithFacebook = (accessToken, history) => async (dispatch) => {
+    try {
+        const { data } = await api.signInWithFacebook(accessToken);
+        dispatch({ type: "AUTH", payload: data });
+        history.push('/chat');
+    } catch (error) {
+        dispatch({ type: "ERROR_MESSAGE", payload: "Facebook Sign In was unsuccessful. Try again later" });
     }
 }
 
+export const logout = (history) => async (dispatch) => {
+    dispatch({ type: 'USER_LOGOUT' });
+    history.push('/');
+}
+
+export const loadProfile = (user) => async (dispatch) => {
+    dispatch({ type: 'LOAD_PROFILE', payload: user })
+}
+
+export const clearErrorMessage = () => async (dispatch) => {
+    dispatch({ type: "LOGIN_ERROR", payload: '' });
+}
+export const socialLoginError = (message) => async (dispatch) => {
+    dispatch({ type: 'ERROR_MESSAGE', payload: message });
+}
 

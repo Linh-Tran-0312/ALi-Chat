@@ -1,15 +1,17 @@
 
 const User = require('../models/User.js');
 const passport = require('passport');
- 
+const mongoose = require('mongoose');
+
+require('dotenv').config();
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 
-
+ 
 var opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = 'secret';
-/* opts.audience = 'http://localhost:3000'; */
+
 
 passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
     
@@ -25,4 +27,4 @@ passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
         }
     });
 }));
-
+ 

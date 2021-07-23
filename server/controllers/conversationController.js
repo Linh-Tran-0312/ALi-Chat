@@ -6,7 +6,7 @@ const cloudinary = require("../utils/cloudinary");
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const User = require('../models/User');
-const { fileURLToPath } = require('url');
+
 
 const ConversationController = {};
 
@@ -15,37 +15,14 @@ ConversationController.createNewConversation = async (formData) => {
     if(text) {
         try {
             let newConversation = await Conversation.create({ people: recipients });
-            const message = await Message.create({ conversation: newConversation._id, isFirst: true,recipients, sender, text, attachment, isReadBy })
+            let newMessage = await Message.create({ conversation: newConversation._id, isFirst: true,recipients, sender, text, attachment, isReadBy })
 
-            newConversation.lastMessage = message._id
+            newConversation.lastMessage = newMessage._id
             await Conversation.findByIdAndUpdate(newConversation._id, { ...newConversation });
     
-            const conversation = await Conversation.aggregate([
-                { $match: { _id: newConversation._id } },
-                {
-                    $lookup:
-                    {
-                        from: "users",
-                        localField: "people",
-                        foreignField: "_id",
-                        as: "peopleInfo",
-                    }
-                },
-                {
-                    $lookup:
-                    {
-                        from: "messages",
-                        localField: "lastMessage",
-                        foreignField: "_id",
-                        as: "lastMessageInfo",
-                    }
-                },
-                {
-                    $sort: { "lastMessageInfo.createdAt": -1 }
-                }
-            ]);
-            console.log(conversation)
-            return { conversation: conversation[0], message }
+            newMessage = await Message.getMessageInfo(newMessage._id)
+            newConversation = await Conversation.getConversationInfo(newMessage.conversation)
+            return { conversation: newConversation, message: newMessage }
     
         } catch (error) {
             console.log(error)
@@ -65,89 +42,36 @@ ConversationController.createNewConversation = async (formData) => {
             newConversation.attachments.push(url);
             await Conversation.findByIdAndUpdate(newConversation._id, { ...newConversation });
     
-            const conversation = await Conversation.aggregate([
-                { $match: { _id: newConversation._id } },
-                {
-                    $lookup:
-                    {
-                        from: "users",
-                        localField: "people",
-                        foreignField: "_id",
-                        as: "peopleInfo",
-                    }
-                },
-                {
-                    $lookup:
-                    {
-                        from: "messages",
-                        localField: "lastMessage",
-                        foreignField: "_id",
-                        as: "lastMessageInfo",
-                    }
-                },
-                {
-                    $sort: { "lastMessageInfo.createdAt": -1 }
-                }
-            ]);
-            
-            return { conversation: conversation[0], message }
+            newMessage = await Message.getMessageInfo(newMessage._id)
+            newConversation = await Conversation.getConversationInfo(newConversation._id)
+            return { conversation: newConversation, message }
     
         } catch (error) {
             console.log(error)
         }
     }
   
-}
+};
+
 ConversationController.createGroupConversation = async (formData) => {
     const { people, host, name } = formData;
     try {
         let newConversation = await Conversation.create({ people, host, name });
-        const newMessage = await Message.create({ conversation: newConversation._id, isFirst : true, isReadBy: [host] , sender: host, recipients: people });
+        let newMessage = await Message.create({ conversation: newConversation._id, isFirst : true, isReadBy: [host] , sender: host, recipients: people });
         newConversation.lastMessage = newMessage._id;
         await Conversation.findByIdAndUpdate(newConversation._id, {...newConversation});
-        newConversation = await Conversation.aggregate([
-            {
-             $match: { _id: newConversation._id }
-            },
-            {
-            $lookup :
-                {
-                    from: "users",
-                    localField: "people",
-                    foreignField: "_id",
-                    as: "peopleInfo",
-                }
-            },
-            {
-                $lookup:
-                    {
-                        from: "messages",
-                        localField: "lastMessage",
-                        foreignField: "_id",
-                        as : "lastMessageInfo",
-                    }
-            },
-            {
-                $lookup:
-                {
-                    from: "users",
-                    localField: "host",
-                    foreignField: "_id",
-                    as: "hostInfo",
-                }
-           },
-    
-         ]);
+        newMessage = await Message.getMessageInfo(newMessage._id)
+        newConversation = await Conversation.getConversationInfo(newConversation._id)
     const data = {
-        conversation: newConversation[0],
+        conversation: newConversation,
         message: newMessage
     }
-    console.log(data.conversation);
     return data
 } catch (error) {
     console.log(error)
 }
-}
+};
+
 ConversationController.getConversationListByUserId = async (req, res) => {
     const userId = req.params.id
     try {
@@ -195,6 +119,13 @@ ConversationController.getConversationListByUserId = async (req, res) => {
                 }
             },
             {
+                $project: 
+                { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                  "lastMessageInfo.senderInfo.password": 0,"lastMessageInfo.senderInfo.email" : 0,"lastMessageInfo.senderInfo.googleId" : 0,"astMessageInfo.senderInfo.facebookId" : 0,
+                    "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                }
+            },
+            {
                 $sort: { "lastMessageInfo.createdAt": -1 }
             }
         ]);
@@ -204,6 +135,7 @@ ConversationController.getConversationListByUserId = async (req, res) => {
         console.log(error)
     }
 };
+
 ConversationController.getAllConversations = async (userId) => {
     try {
         const conversations = await Conversation.aggregate([
@@ -250,6 +182,13 @@ ConversationController.getAllConversations = async (userId) => {
                 }
             },
             {
+                $project: 
+                { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                  "lastMessageInfo.senderInfo.password": 0,"lastMessageInfo.senderInfo.email" : 0,"lastMessageInfo.senderInfo.googleId" : 0,"astMessageInfo.senderInfo.facebookId" : 0,
+                    "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                }
+            },
+            {
                 $sort: { "lastMessageInfo.createdAt": -1 }
             }
         ]);
@@ -258,31 +197,58 @@ ConversationController.getAllConversations = async (userId) => {
     } catch (error) {
         console.log(error)
     }
-}
-ConversationController.getConversationById = async (req, res) => {
+};
 
+ConversationController.getConversationByUserIds = async (req, res) => {
     const id = req.params.id;
     try {
         const conversation = await Conversation.aggregate([
             {
-                $match: { _id: id }
+                $match: { $and: [{ people: { $in: [new mongoose.Types.ObjectId(id)] } }, { people: { $in: [new mongoose.Types.ObjectId(req.user._id)] } }] }
             },
             {
-                $lookup: {
-                    from: 'User',
-                    localField: 'people',
-                    foreignField: '_id',
-                    as: "peopleInfo"
+                $match: { name : { $exists: false } }
+            },
+            {
+                $lookup:
+                {
+                    from: "users",
+                    localField: "people",
+                    foreignField: "_id",
+                    as: "peopleInfo",
+                }
+            },
+            {
+                $lookup:
+                {
+                    from: "messages",
+                    localField: "lastMessage",
+                    foreignField: "_id",
+                    as: "lastMessageInfo",
+                }
+            },
+            {
+                $lookup:
+                {
+                    from: "users",
+                    localField: "host",
+                    foreignField: "_id",
+                    as: "hostInfo",
+                }
+            },
+            {
+                $project: 
+                { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                    "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
                 }
             }
         ]);
-
-        return res.status(200).json(conversation);
+        
+        return res.status(200).json(conversation)
     } catch (error) {
-        return res.status(500).json({ message: 'Something went wrong!' });
+        console.log(error)
     }
-}
-
+}  
 ConversationController.updateConversation = async (req, res) => {
     const { _id, people} = req.body;
     console.log(people)
@@ -320,7 +286,12 @@ ConversationController.updateConversation = async (req, res) => {
                     as: "hostInfo",
                 }
            },
-    
+           {
+                $project: 
+                    { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                      "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                    }
+           }
          ]);
        
         return res.status(200).json(updatedConversation[0]);
@@ -380,7 +351,13 @@ ConversationController.addMember = async(data) => {
                     as: "hostInfo",
                 }
            },
-    
+           {
+                $project: 
+                    { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                      "lastMessageInfo.senderInfo.password": 0,"lastMessageInfo.senderInfo.email" : 0,"lastMessageInfo.senderInfo.googleId" : 0,"astMessageInfo.senderInfo.facebookId" : 0,
+                      "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                    }
+            }
          ]);
          const newUser = await User.findById(userId);
          const newUserName = newUser.firstname;
@@ -441,7 +418,13 @@ ConversationController.removeMember = async(data) => {
                     as: "hostInfo",
                 }
            },
-    
+           {
+                $project: 
+                    { "peopleInfo.password": 0, "peopleInfo.email": 0,"peopleInfo.googleId": 0,"peopleInfo.facebookId": 0,
+                    "lastMessageInfo.senderInfo.password": 0,"lastMessageInfo.senderInfo.email" : 0,"lastMessageInfo.senderInfo.googleId" : 0,"astMessageInfo.senderInfo.facebookId" : 0,
+                        "hostInfo.password": 0,"hostInfo.email": 0, "hostInfo.googleId": 0, "hostInfo.facebookId": 0,
+                    }
+           }
          ]);
          const removedUser = await User.findById(userId);
 
@@ -462,5 +445,4 @@ ConversationController.removeMember = async(data) => {
 }
 
  
-
 module.exports = ConversationController
