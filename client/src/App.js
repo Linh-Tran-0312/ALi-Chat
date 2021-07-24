@@ -9,7 +9,7 @@ const Chat = () => {
     useEffect(() => {
         configSocket();
     },[]);
-   
+    
     return (  <Route  path="/chat" component={Home}/> 
     )
 }

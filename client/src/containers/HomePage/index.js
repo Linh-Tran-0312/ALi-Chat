@@ -2,14 +2,14 @@ import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, Redirect } from 'react-router';
-import { changeScreen } from '../../actions/layout';
+import { Redirect, useHistory } from 'react-router';
 import { loadProfile } from '../../actions/auth';
+import { changeScreen } from '../../actions/layout';
+import getSocket from '../../socket';
 import AppWall from './AppIntro/AppWall';
 import ChatFeed from './ChatFeed/ChatFeed';
 import ChatInfo from './ChatInfo/ChatInfo';
 import ChatList from './ChatList/ChatList';
-import  getSocket, { configSocket } from '../../socket';
 import { emitGetConversations, emitJoinRoomUserId } from './socket';
 const useStyle = makeStyles(() => ({
     container: {
@@ -21,7 +21,6 @@ const useStyle = makeStyles(() => ({
 }));
 
 const Home = () => {
-    console.log('HOME RENDER');
 
     const matchLG = useMediaQuery('(min-width:1101px)');
     const matchMD = useMediaQuery('(max-width:1100px)');

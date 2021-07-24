@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 const ChatFeed = ({ setSearchTerm }) => {
-    console.log('CHAT FEED RENDER');
+    
 
     const { mode } = useSelector(state => state.layout, shallowEqual);
 

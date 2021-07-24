@@ -1,4 +1,4 @@
-import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { logout } from '../../../actions/auth';
 import { selectProfile } from '../../../actions/user';
-import { socketDisconnect} from '../../../socket'
+import { socketDisconnect } from '../../../socket';
 const SimpleMenu = () => { 
     const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -37,9 +37,9 @@ const SimpleMenu = () => {
 
     return (
         <div>
-            <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+            <IconButton aria-controls="simple-menu" size="small" aria-haspopup="true" onClick={handleClick}>
                 <MenuIcon />
-            </Button>
+            </IconButton>
             <Menu
                 id="simple-menu"
                 anchorEl={anchorEl}

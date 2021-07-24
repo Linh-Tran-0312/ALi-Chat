@@ -90,7 +90,7 @@ const StyledAccordion = withStyles(() => ({
 }))(Accordion)
 
 const ChatInfo = () => {
-    console.log("CHAT INFO RENDER");
+    
     const userId = JSON.parse(localStorage.getItem('profile')).result._id;
     const { mode } = useSelector(state => state.layout);
 

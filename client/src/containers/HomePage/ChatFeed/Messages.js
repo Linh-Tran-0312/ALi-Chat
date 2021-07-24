@@ -64,7 +64,7 @@ const Messages = ({ conversation }) => {
   const { messages, isLoadingMore, scrollMode, newMessage, typing } = useSelector(state => state.messages, shallowEqual);
 
   const [scrollDown, setScrollDown] = useState(false);
-  console.log('Messages render', messages?.length);
+  
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -91,7 +91,6 @@ const Messages = ({ conversation }) => {
   let isFarFromBottom;
   const scrollFunction = () => {
     if (chatTop.current.scrollTop === 0 && messages.length >= 10 && messages[0].isFirst == false) {
-      console.log('load them Messages');
       loadMessages();
     }
 

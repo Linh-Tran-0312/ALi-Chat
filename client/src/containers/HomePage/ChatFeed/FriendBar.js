@@ -103,7 +103,7 @@ const InfoDrawer = () => {
 }
 
 const FriendBar = ({ conversation, friend }) => {
-  console.log('FriendBar render');
+ 
   const { mode } = useSelector(state => state.layout, shallowEqual);
   const matchMD = mode === 'MD';
   const matchSM = mode === 'SM';

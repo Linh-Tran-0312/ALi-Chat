@@ -102,7 +102,7 @@ const Conversation = ({ conversation }) => {
 
     const handleSelect = () => {
         if (!isRead) {
-            emitUserReadLastMessage({ conversationId: conversation?._id, messageId: conversation.lastMessageInfo[0]._id, userId: currentUser?._id });
+            emitUserReadLastMessage({ conversationId: conversation?._id, messageId: conversation.lastMessageInfo[0]?._id, userId: currentUser?._id });
             setIsRead(true);
         }
         if(conversation._id !== currentConversation?._id || !currentConversation ) {

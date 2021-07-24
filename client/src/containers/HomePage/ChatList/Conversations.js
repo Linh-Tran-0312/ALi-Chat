@@ -65,7 +65,7 @@ const usePrevious = (data) => {
 }
 
 const Conversations = ({ searchTerm }) => {
-  console.log(' Conversations render');
+ 
   const userId = JSON.parse(localStorage.getItem('profile')).result._id;
 
   const conversation = useSelector(state => state.conversation);
@@ -75,19 +75,6 @@ const Conversations = ({ searchTerm }) => {
   const classes = useStyles();
   let preConversationId = usePrevious(conversation?._id);
 
-
-  useEffect(() => {
-  let newMessagesCount = 0;
-
-  conversations?.forEach(c => {
-   newMessagesCount = c?.lastMessageInfo[0]?.isReadBy?.some(readerId => readerId !== userId) ? newMessagesCount+=1 : newMessagesCount
-  })
-
-  if( newMessagesCount > 0) {
-    document.title = `(${newMessagesCount}) ALi Chat`
-  }
-
-  },[conversations])
 
   useEffect(() => {
     emitJoinConversation({ newConversation: conversation?._id, oldConversation: preConversationId });

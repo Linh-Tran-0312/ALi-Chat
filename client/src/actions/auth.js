@@ -58,6 +58,9 @@ export const loadProfile = (user) => async (dispatch) => {
     dispatch({ type: 'LOAD_PROFILE', payload: user })
 }
 
+export const passwordLengthInvalid = () => async (dispatch) => {
+    dispatch({ type: "LOGIN_ERROR", payload: 'Password must be at least 6 characters long. Please try again !' });
+}
 export const clearErrorMessage = () => async (dispatch) => {
     dispatch({ type: "LOGIN_ERROR", payload: '' });
 }

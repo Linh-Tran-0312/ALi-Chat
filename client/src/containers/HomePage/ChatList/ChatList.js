@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 
 
 const ChatList = ({ searchTerm, setSearchTerm }) => {
-    console.log('CHAT LIST RENDER');
+     
     const { mode, view } = useSelector(state => state.layout, shallowEqual);
 
     const conversation = useSelector(state => state.conversation,shallowEqual);
@@ -39,7 +39,6 @@ const ChatList = ({ searchTerm, setSearchTerm }) => {
 
     useEffect(() => {
         emitGetMessages(conversation?._id);
-        console.log("get lai messages do conversation change")
     }, [conversation?._id]);
 
     useEffect(() => {

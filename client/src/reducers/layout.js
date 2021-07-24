@@ -42,7 +42,7 @@ export default (state = initState, action) => {
             if(state.mode === 'XS') {
                 return {...state, view: { INTRO: false, PROFILE: false, CHATFEED: false, CHATINFO: false, CHATLIST: true }}
             } else {
-                return {...state}
+                return {...state, view: { INTRO: true, PROFILE: false, CHATFEED: false, CHATINFO: false, CHATLIST: true }}
             }
         case "VIEW_CHATFEED":
             if(state.mode === 'XS') {

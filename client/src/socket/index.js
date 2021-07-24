@@ -1,8 +1,5 @@
 import socketIOClient from "socket.io-client";
 import * as chat from '../containers/HomePage/socket';
-import * as layout from '../actions/layout';
-import * as user from '../actions/user';
-import store from '../store';
 
 
 const serverEndpoint = process.env.REACT_APP_SERVER_URL;

@@ -51,6 +51,9 @@ UserController.signUp = async (req, res) => {
 
         const user = await User.create({ lastname, firstname, email, password: hashPassword });
 
+        // add new user to Ali Community Group
+       await Conversation.findByIdAndUpdate("60fc2fea5d5bad06144e28dc", { $push: { people: user._id}});
+
         const result = { _id: user._id, email: user.email, avatar: user.avatar, lastname: user.lastname, firstname: user.firstname };
         const payload = { email: user.email, id: user._id };
 
@@ -79,6 +82,7 @@ UserController.signInWithGoogle = async (req, res) => {
                 avatar: payload['picture'],
                 googleId
             });
+            await Conversation.findByIdAndUpdate("60fc2fea5d5bad06144e28dc", { $push: { people: user._id}});
         }
         const payloadToken = { email: user.email, id: user._id };
         const result = { _id: user._id, caption: user.caption, email: user.email, avatar: user.avatar, lastname: user.lastname, firstname: user.firstname };
@@ -136,6 +140,7 @@ UserController.signInWithFacebook = async (req, res) => {
                                             avatar: profile.picture.data.url,
                                             facebookId: verifyInfo.user_id
                                         });
+                                        await Conversation.findByIdAndUpdate("60fc2fea5d5bad06144e28dc", { $push: { people: user._id}});
                                         const payloadToken = { id: user._id };
                                         const result = { _id: user._id, email: user.email, avatar: user.avatar, lastname: user.lastname, firstname: user.firstname };
                                         const token = jwt.sign(payloadToken, 'secret', { expiresIn: '30d' });

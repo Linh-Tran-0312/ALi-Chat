@@ -7,7 +7,7 @@ import { changeMode } from '../../../actions/layout';
 import Avatar from '../../../components/Avatar';
 import Menu from './Menu';
 import ModalCreateGroup from './ModalCreateGroup/ModalCreateGroup';
-
+import ImageModal from '../../../components/ImageModal';
 
 const useStyles = makeStyles((theme) => ({
     userinfo: {
@@ -47,7 +47,7 @@ const BorderTextField = withStyles({
 })(TextField);
 
 const UserBar = ({ handleSearchTerm }) => {
-    console.log(" Userbar render");
+  
     const { mode, screen } = useSelector(state => state.layout);
 
     const { currentProfile: user } = useSelector(state => state.auth);
@@ -89,15 +89,15 @@ const UserBar = ({ handleSearchTerm }) => {
     return (
         <div className={classes.userinfo}  >
             <Box my={4} width="75%">
-                <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
-                    <Grid item xs={3} >
-                        <Avatar url={user?.avatar} size={70} />
+                <Grid container  direction="row" alignItems="center" spacing={2}>
+                    <Grid item xs={4} align="center">
+                         <Avatar url={user?.avatar} size={70} />  
                     </Grid>
-                    <Grid item xs={6} align="center" >
-                        <Typography variant="h5"  >{`${user?.lastname} ${user?.firstname}`}</Typography>
+                    <Grid item xs={7} align="left" >                     
+                        <Typography variant="h5" noWrap >{`${user?.lastname} ${user?.firstname}`}</Typography>
                     </Grid>
-                    <Grid item xs={3} >
-                        <Menu />
+                    <Grid item xs={1} align="center">
+                         <Menu />
                     </Grid>
                 </Grid>
             </Box>

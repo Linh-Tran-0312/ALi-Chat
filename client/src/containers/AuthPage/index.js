@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleLogin } from 'react-google-login';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { clearErrorMessage, signIn, signInWithFacebook, signInWithGoogle, signUp, socialLoginError } from '../../actions/auth';
+import { clearErrorMessage, signIn, signInWithFacebook, signInWithGoogle, signUp, socialLoginError, passwordLengthInvalid } from '../../actions/auth';
 import Input from './Input';
 
 const useStyles = makeStyles((theme) => ({
@@ -89,17 +89,22 @@ const Auth = () => {
     const handleSubmit = (e) => {
         dispatch(clearErrorMessage());
         e.preventDefault();
-        setIsSigningIn(true);
+       
         if (isSignUp) {
-            dispatch(signUp(formData, history));
+            if(formData.password.length < 6 || formData.confirm_password.length < 6) {
+                dispatch(passwordLengthInvalid())
+            } else {
+                dispatch(signUp(formData, history));
+                setIsSigningIn(true);
+            }
         } else {
             dispatch(signIn(formData, history));
+            setIsSigningIn(true);
         }
     }
 
     const responseFacebook = (res) => {
         try {
-            console.log(res);
             dispatch(signInWithFacebook(res.accessToken, history))
         } catch (error) {
             console.log(error);
