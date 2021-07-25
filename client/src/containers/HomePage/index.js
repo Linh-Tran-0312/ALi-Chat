@@ -36,11 +36,6 @@ const Home = () => {
     const classes = useStyle();
     const dispatch = useDispatch();
     const history = useHistory();
-/*    useEffect(() => {
-        if(!user) {
-            history.push('/');
-        }
-    },[user])   */
 
     useEffect(() => {
         if(getSocket().disconnected) {

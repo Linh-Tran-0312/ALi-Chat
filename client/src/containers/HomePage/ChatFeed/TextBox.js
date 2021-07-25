@@ -1,13 +1,16 @@
-import { Box, IconButton, InputBase, Paper } from '@material-ui/core';
+import { Box, IconButton, InputBase, Paper, Grid, Typography } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import CancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import ImageIcon from '@material-ui/icons/Image';
 import SendIcon from '@material-ui/icons/Send';
+import MoodIcon from '@material-ui/icons/Mood';
 import Compress from 'compress.js';
+import Picker, { SKIN_TONE_NEUTRAL } from "emoji-picker-react";
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { sendMessage } from '../../../actions/chat';
+import { useDispatch, useSelector } from 'react-redux';
+import { sendMessage, replyMessage } from '../../../actions/chat';
 import { emitCreateNewConversation, emitSendMessage, emitUserIsTypingMessage, emitUserStopTyingMessage } from '../socket.js';
-
+import ImageModal from '../../../components/ImageModal';
 const useStyles = makeStyles((theme) => ({
     centeralign: {
         display: 'flex',
@@ -16,6 +19,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
     },
     textbox: {
+        position: 'relative',
         height: 100,
         backgroundColor: '#e5eaff',
         display: 'flex',
@@ -25,6 +29,17 @@ const useStyles = makeStyles((theme) => ({
     },
     input: {
         backgroundColor: 'white',
+    },
+    reply_message : {
+        width: '100%',
+        minHeight: '70px',
+        position: 'absolute',
+        bottom: '100px',
+        zIndex: 999,
+        padding: '15px',
+        backgroundColor: 'white',
+        color: '#676770',
+
     }
 }));
 
@@ -36,22 +51,41 @@ const StyledBox = withStyles({
 
 
 const TextBox = ({ conversation, friendId, setSearchTerm }) => {
-    console.log('TextBox render');
+     
     const currentUser = JSON.parse(localStorage.getItem('profile')).result;
     const [text, setText] = useState("")
-  
+    const { isReplyingTo } = useSelector(state => state.messages)
     const classes = useStyles();
     const dispatch = useDispatch();
 
     const fileRef = useRef();
+   // const [chosenEmoji, setChosenEmoji] = useState(null);
+    const [ showPicker, setShowPicker ]= useState(false)
 
+    const onEmojiClick = (event, emojiObject) => {
+    //  setChosenEmoji(emojiObject);
+      setText(text + emojiObject.emoji)
+      setShowPicker(false)
+    };
+
+    const openPicker = () => {
+      setShowPicker(preState => !preState)
+    }
     const setNewMessage = (e) => {
         setText(e.target.value);
+        if(e.target.value === "") {
+            emitUserStopTyingMessage({ conversationId: conversation?._id, userId: currentUser?._id })
+        }
     }
     const submitMessage = (formData, urlImage) => {
         if (conversation?._id) {
            emitSendMessage(formData);
+           if(isReplyingTo) {
+            dispatch(sendMessage({...formData, attachment: urlImage, replyToInfo: [isReplyingTo]}));
+            dispatch(replyMessage(null));
+           } else {
             dispatch(sendMessage({...formData, attachment: urlImage}));
+           }
             setText("");
         }
         else {
@@ -71,7 +105,8 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                 sender: currentUser._id,
                 attachment: '',
                 text: text,
-                isReadBy:  [currentUser._id]
+                isReadBy:  [currentUser._id],
+                replyTo: isReplyingTo?._id
             }       
             return submitMessage(formData)
         }    
@@ -101,7 +136,8 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
                             name: images[0].name,
                         },
                         text: "",
-                        isReadBy:  [currentUser._id]
+                        isReadBy:  [currentUser._id],
+                        replyTo: isReplyingTo?._id
                     };   
                     return submitMessage(formData, reader.result);
                 })
@@ -110,6 +146,9 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
         }          
     }
 
+    const handleCancelReply = () => {
+        dispatch(replyMessage(null))
+    }
     const handleSetSearchTerm = () => {
         if (conversation?._id) {
             setSearchTerm("");
@@ -121,20 +160,59 @@ const TextBox = ({ conversation, friendId, setSearchTerm }) => {
     }
 
     const handleUserStopTyping = () => {
-        if(conversation?._id && !!text) {
+        if(conversation?._id) {
            emitUserStopTyingMessage({ conversationId: conversation._id, userId: currentUser._id })
         }
     }
     useEffect(() => {
         setText("");
-    },[conversation])
+    },[conversation?._id])
     return (
         <StyledBox width={1} borderTop={2} className={classes.textbox}  >
+                {
+                    showPicker &&  <Picker
+                    groupVisibility
+                    pickerStyle={{ width: '100%', height: '300px', position: 'absolute', zIndex: 1000 , bottom: '100px'}} 
+                    onEmojiClick={onEmojiClick}
+                    disableAutoFocus={true}
+                    disableSearchBar
+                    skinTone={SKIN_TONE_NEUTRAL}
+                    groupNames={{ smileys_people: "PEOPLE" }}
+                
+                />
+                }
+                { isReplyingTo && 
+                  
+                        <Grid container direction="row"
+                                
+                                alignItems="center"
+                                  className={classes.reply_message}>
+                            <Grid item xs={11}>
+                            <Typography variant="caption" color="primary">
+                                        { currentUser._id === isReplyingTo.sender ? `You're replying to your message:` : ` You're replying to ${isReplyingTo?.senderInfo[0]?.firstname}'s message:`} 
+                            </Typography>
+                            {
+                                isReplyingTo.text ?  <Typography noWrap variant="body1" color="inherit">{isReplyingTo.text}</Typography> :
+                                <ImageModal url={isReplyingTo.attachment}  minWidth="50px" maxWidth="50px" minHeight="50px" maxHeight="50px" border="6px"/>
+
+                            }
+                            </Grid>
+                            <Grid item xs={1} style={{textAlign: 'right'}}>
+                                <IconButton onClick={handleCancelReply}>
+                                    <CancelOutlinedIcon />
+                                </IconButton>
+                            </Grid>
+                        </Grid>
+                    
+                }
             <Paper component="form" onSubmit={handleSubmit} style={{ width: '90%' }} className={classes.centeralign}>               
                 <IconButton onClick={handleClickFile}>                      
                     <input type="file" name="img" ref={fileRef} style={{ display: 'none' }} onChange={selectFile} />
                     <ImageIcon />
-                </IconButton>             
+                </IconButton>   
+                <IconButton onClick={openPicker}>                      
+                    <MoodIcon />
+                </IconButton>            
                 <InputBase placeholder="Type your message..."
                     type="text"
                     variant="outlined"

@@ -9,6 +9,7 @@ const messageSchema = new Schema({
     isFirst: { type: Boolean, default: false},
     isNotify: { type: Boolean, default: false},
     isReadBy: [{ type: Schema.Types.ObjectId, ref: 'User'}],
+    replyTo: { type: Schema.Types.ObjectId, ref: 'Message'},
     attachment: String,
     text: String
 })
@@ -29,6 +30,28 @@ messageSchema.statics.getMessageInfo = async function(id) {
             }
         },
         {
+            $lookup : {
+                from : "messages",
+                let : {"messageId": "$replyTo"},
+                pipeline : [
+                    { $match : { $expr : { $eq : ["$_id" , "$$messageId"]}}},
+                    {
+                        $lookup: 
+                        {
+                            from: 'users',
+                            let: {"senderId" : "$sender"},
+                            pipeline : [
+                                { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}},
+                                { $project: { "_id": 1, "avatar": 1, "lastname" : 1, "firstname" : 1}}
+                            ],
+                            as: "senderInfo"
+                        }
+                    }
+                ],
+                as : 'replyToInfo'
+            }
+        },
+        {
             $lookup: {
                 from: "users",
                 localField: "isReadBy",
@@ -40,7 +63,8 @@ messageSchema.statics.getMessageInfo = async function(id) {
             $project : 
             {
                 _id : 1, recipients: 1, isFirst: 1, isNotify: 1, isReadBy: 1, conversation: 1,sender: 1,
-                attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1
+                attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1,
+                replyToInfo: 1, replyTo: 1
             }
         }
     ]);

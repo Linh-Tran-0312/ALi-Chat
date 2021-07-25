@@ -1,6 +1,7 @@
 import { Box, Chip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import ArrowDropDownCircleOutlinedIcon from '@material-ui/icons/ArrowDropDownCircleOutlined';
 import Radium, { StyleRoot } from 'radium';
 import React, { useEffect, useRef, useState } from 'react';
 import { headShake } from 'react-animations';
@@ -61,10 +62,9 @@ const Messages = ({ conversation }) => {
   const currentUserId = JSON.parse(localStorage.getItem('profile')).result._id;
 
   const userResult = useSelector(state => state.userResult);
-  const { messages, isLoadingMore, scrollMode, newMessage, typing } = useSelector(state => state.messages, shallowEqual);
+  const { messages, isLoadingMore, scrollMode, newMessage, typingList } = useSelector(state => state.messages, shallowEqual);
 
   const [scrollDown, setScrollDown] = useState(false);
-  
 
   const dispatch = useDispatch();
   const classes = useStyles();
@@ -118,6 +118,9 @@ const Messages = ({ conversation }) => {
       default:
         break;
     }
+    if(!scrollDown) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const renderMessages = () => {
@@ -151,7 +154,7 @@ const Messages = ({ conversation }) => {
           messages.length === 0 && !userResult ? <Box width={1} my={2} textAlign="center" ><PulseLoader color={"#5B9BD5"} size={13} css={"margin-bottom: 25px"} loading={true} /></Box> : renderMessages()
         }
         {
-          currentUserId !== typing?._id && typing ? <TypingMessage avatar={typing?.avatar} userId={typing?._id} /> : null
+          typingList.length > 0 && ( typingList.map( user => <TypingMessage avatar={user?.avatar} userId={user?._id} />))
         }
         <div ref={chatBottom} />
       </div>
@@ -161,6 +164,8 @@ const Messages = ({ conversation }) => {
             <StyleRoot>
               <div style={styles.headShake}>
                 <Chip
+                
+                avatar={<ArrowDropDownCircleOutlinedIcon style={{ backgroundColor: 'transparent'}} />}
                   label='New Message'
                   color="primary"
                   onClick={scrollToBottom}

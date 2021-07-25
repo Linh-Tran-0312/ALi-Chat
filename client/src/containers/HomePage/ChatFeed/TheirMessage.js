@@ -1,13 +1,14 @@
-import { Avatar as OAvatar, Box, Chip, Grid, Typography } from '@material-ui/core';
+import { Avatar as OAvatar, Box, Chip, Grid, Typography, IconButton } from '@material-ui/core';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
+import ReplyOutlinedIcon from '@material-ui/icons/ReplyOutlined';
 import AlarmIcon from '@material-ui/icons/Alarm';
 import AvatarGroup from '@material-ui/lab/AvatarGroup';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Avatar from '../../../components/Avatar';
 import ImageModal from '../../../components/ImageModal';
 import NotifyMessage from './NotifyMessage';
-
+import { replyMessage } from '../../../actions/chat';
 const useStyles = makeStyles((theme) => ({
     message_avatar: {
         width: '100%',
@@ -46,6 +47,9 @@ const useStyles = makeStyles((theme) => ({
         alignItems: 'center',
         '&:hover $theirmessage_time': {
             visibility: 'visible'
+        },
+        '&:hover $reply': {
+            visibility: 'visible'
         }
     },
     theirmessage_time: {
@@ -57,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         visibility: 'hidden'
     },
     theirmessage_content: {
-        maxWidth: '60%',
+   
         height: '100%',
         minHeight: 35,
         display: 'flex',
@@ -65,10 +69,12 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: 'center',
         alignItems: 'flex-start',
         padding: 10,
-        borderRadius: "17px",
+        borderRadius: "13px",
         backgroundColor: 'white',
         fontFamily: 'Open Sans',
-        wordBreak: 'break-word'
+        wordBreak: 'break-word',
+        position: 'relative',
+        zIndex: 5
     },
     message_image: {
         marginRight: 18,
@@ -86,18 +92,37 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'row',
         justifyContent: 'flex-start',
     },
-    avatar: 
-    { "&&" :{
-        height: '15px',
-        color: "#474646"
-      }},
-    chip : {
+    avatar:
+    {
+        "&&": {
+            height: '15px',
+            color: "#474646"
+        }
+    },
+    chip: {
         height: '18px',
         fontSize: '11px'
     },
-    xs : {
+    xs: {
         paddingLeft: '5px'
-    }
+    },
+    repliedMessage: {
+        backgroundColor: 'rgba(207,207,225, 0.4)',
+        color: '#676770',
+        fontFamily: 'Open Sans',
+        position: 'relative',
+        zIndex: 0,
+        bottom: '-10px',
+        padding: '13px',
+        paddingBottom: '20px',
+        borderRadius: '10px',
+        fontFamily: 'Open Sans',
+        wordBreak: 'break-word',
+
+    },
+    reply: {
+        visibility: 'hidden',
+    },
 }));
 
 const StyledAvaGroup = withStyles(() => ({
@@ -110,12 +135,16 @@ const StyledAvaGroup = withStyles(() => ({
 }))(AvatarGroup);
 
 const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
+    const currentUser = JSON.parse(localStorage.getItem('profile')).result;
 
     const classes = useStyles();
     const { mode } = useSelector(state => state.layout);
     const matchXS = mode === 'XS';
     const time = new Date(parseInt(message.createdAt));
-
+    const dispatch = useDispatch();
+    const handleReplyMessage = () => {
+        dispatch(replyMessage(message))
+    }
     const revertStringToTime = (string) => {
         const time = new Date(parseInt(string));
         if (!isNaN(time.getTime())) {
@@ -150,7 +179,22 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
         timeNextMessage = revertStringToTime(nextMessage.createdAt);
         timeNextMessage.text = timeNextMessage.dateString;
     }
- 
+    const renderRepliedMessage = (msg) => {
+        return (
+            <div className={classes.repliedMessage}>
+                  <Typography variant="caption" color="primary"  >
+                   {
+                       msg.sender === currentUser._id ? 'Your message:' : `${msg.senderInfo[0].firstname}'s message:`
+                   }
+                </Typography>
+                <br />
+                {
+                   msg.text ? msg.text :  <ImageModal url={msg.attachment} minWidth="150px" maxWidth="150px" minHeight="150px" maxHeight="150px" border="6px" />
+
+                }
+            </div>
+        )
+    }
     return (
         <>
             <Box width="100%" className={classes.message} my={1} ref={forwardRef}>
@@ -167,24 +211,42 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                             </Typography>)
                         }
                     </Grid>
-                    <Grid item xs={11} className={ matchXS ? `${classes.theirmessage_box} ${classes.xs}` : classes.theirmessage_box} >
+                    <Grid item xs={11} className={matchXS ? `${classes.theirmessage_box} ${classes.xs}` : classes.theirmessage_box} >
                         {message?.attachment ? (
                             <div className={classes.theirmessage_content_box}>
-                                <ImageModal url={message?.attachment} minWidth="200px" maxWidth="200px" minHeight="200px" maxHeight="200px" border="6px" />
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: '60%' }}>
+                                    {
+                                        message?.replyToInfo?.length > 0 && renderRepliedMessage(message.replyToInfo[0])
+                                    }
+                                    <div style={{ position: 'relative', zIndex: 6 }}>
+                                        <ImageModal url={message?.attachment} minWidth="180px" maxWidth="180px" minHeight="220px" maxHeight="220px" border="6px" />
+                                    </div>
+                                </div>
+                                <IconButton size="small" className={classes.reply} onClick={handleReplyMessage}>
+                                    <ReplyOutlinedIcon />
+                                </IconButton>
                                 <Typography className={classes.theirmessage_time}>{dateString}</Typography>
                             </div>
                         ) : (
                             <div className={classes.theirmessage_content_box}>
-                                <div className={classes.theirmessage_content}>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', maxWidth: '50%' }}>
                                     {
-                                        message.recipients.length > 2 && (<Typography variant="caption" color="primary">
-                                            {message.senderInfo[0].firstname}
-                                        </Typography>)
+                                        message?.replyToInfo?.length > 0 && renderRepliedMessage(message.replyToInfo[0])
                                     }
-                                    <Typography variant="body1" >
-                                        {message?.text}
-                                    </Typography>
+                                    <div className={classes.theirmessage_content}>
+                                        {
+                                            message.recipients.length > 2 && (<Typography variant="caption" color="primary">
+                                                {message.senderInfo[0].firstname}
+                                            </Typography>)
+                                        }
+                                        <Typography variant="body1" >
+                                            {message?.text}
+                                        </Typography>
+                                    </div>
                                 </div>
+                                <IconButton size="small" className={classes.reply} onClick={handleReplyMessage}>
+                                    <ReplyOutlinedIcon />
+                                </IconButton>
                                 <Typography className={classes.theirmessage_time}>{dateString}</Typography>
                             </div>
                         )}
@@ -192,23 +254,23 @@ const TheirMessage = ({ message, forwardRef, nextMessage, isLastMessage }) => {
                             {
                                 isLastMessage && (
                                     <Typography variant="caption" className={isLastMessage ? classes.message_time : null}>
-                                    <Chip
-                                        className={classes.chip}
-                                        variant="outlined"
-                                        size="small"
-                                        avatar={<AlarmIcon />}
-                                        label={`${timeString}`}
-                                        classes={{avatar: classes.avatar }}
-                                  
-                                    />
+                                        <Chip
+                                            className={classes.chip}
+                                            variant="outlined"
+                                            size="small"
+                                            avatar={<AlarmIcon />}
+                                            label={`${timeString}`}
+                                            classes={{ avatar: classes.avatar }}
+
+                                        />
                                     </Typography>
                                 )
-                            }               
+                            }
                             <StyledAvaGroup max={10} spacing={4}  >
                                 {
                                     isLastMessage && (message?.isReadByInfo?.map((reader, index) => { if (reader._id !== message.sender) return (<OAvatar key={index} alt="" src={reader.avatar} />) }))
                                 }
-                            </StyledAvaGroup>                     
+                            </StyledAvaGroup>
                         </div>
                     </Grid>
                 </Grid>

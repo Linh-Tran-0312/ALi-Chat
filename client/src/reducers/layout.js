@@ -13,7 +13,7 @@ const initState = {
 export default (state = initState, action) => {
     switch(action.type) {
         case "SET_SCREEN":
-            console.log(`DA TOI REDUCER ${action.payload}`);
+           
             if(state.view.INTRO && !state.view.PROFILE) {
                 if(action.payload === 'XS') return {...state, screen: action.payload, mode: action.payload,  view: { INTRO: false, PROFILE: false, CHATFEED: false, CHATINFO: false, CHATLIST: true }};
                 return {...state, screen: action.payload, mode: action.payload,  view: { INTRO: true, PROFILE: false, CHATFEED: false, CHATINFO: false, CHATLIST: true }};

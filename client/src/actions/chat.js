@@ -54,3 +54,6 @@ export const readNewMessage = () => async (dispatch) => {
     dispatch({ type: 'READ_NEW_MESSAGE' })
 }
 
+export const replyMessage = (message) => async (dispatch) => {
+    dispatch({ type: "REPLY_MESSAGE", payload: message})
+}

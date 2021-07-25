@@ -3,13 +3,15 @@ const initState = {
     isLoadingMore: false,
     scrollMode: 0, // 0: not scroll, 1: scroll down, 2: scroll to "load more" messages
     newMessage: false,
-    typing: null,
+    typingList: [],
+    isReplyingTo: null,
 }
 
 export default (state = initState, action) => {
+    const userId = JSON.parse(localStorage.getItem('profile'))?.result?._id;
     switch (action.type) {
         case "FETCH_MESSAGES":
-            return { ...state, messages: action.payload,scrollMode: 1, typingList: [] };
+            return { ...state, messages: action.payload,scrollMode: 1, typingList: [],isReplyingTo: null };
         case "ADD_MESSAGE":
             return { ...state, scrollMode: 1, messages: [...state.messages, action.payload] };
         // return [...messages, action.payload];
@@ -20,12 +22,12 @@ export default (state = initState, action) => {
             return state
         // return [...action.payload, ...messages];
         case "LOADING_MORE":
-            console.log(action.payload)
+           
             return { ...state, scrollMode: 0,isLoadingMore: action.payload }
         case "UPDATE_MESSAGES":  
             if(state.messages[0]?.conversation === action.payload.conversation) {
-                console.log('update messages')
-                const userId = JSON.parse(localStorage.getItem('profile')).result._id;
+                 
+              
                 let updatedMessages = [...state.messages];
                 if (action.payload.sender === userId) {
                     updatedMessages[updatedMessages.length - 1] = action.payload;
@@ -33,8 +35,8 @@ export default (state = initState, action) => {
                 } else {
                     if (!updatedMessages.find(x => x._id === action.payload._id)) {
                         updatedMessages.push(action.payload);
-                        state.scrollMode = 0;
-                        state.newMessage = true;
+                            state.scrollMode = 0;
+                            state.newMessage = true;
                     }
                 }
                 return { ...state,messages: updatedMessages };
@@ -57,13 +59,15 @@ export default (state = initState, action) => {
         case "NEW_MESSAGE":
             return {...state, messages: [action.payload]}
         case "ADD_USER_TYPING":
-            if(!state.typing || state.typing._id !== action.payload._id) 
-            return { ...state, typing: action.payload}
+            if(!state.typingList.find( u => u._id === action.payload._id) && action.payload._id !== userId) 
+            return { ...state, typingList: [...state.typingList, action.payload]}
             return state;
         case "REMOVE_USER_TYPING":
-            if(state.typing && state.typing?._id === action.payload) 
-            return { ...state, typing: null}
-            return state;
+            const updatedTypingList = state.typingList.filter( u => u._id !== action.payload)
+            return {...state, typingList : updatedTypingList };
+        case "REPLY_MESSAGE": 
+             return {...state, isReplyingTo: action.payload}
+   
         default:
             return state;
     }

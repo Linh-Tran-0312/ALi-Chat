@@ -74,10 +74,33 @@ MessageController.getAllMessages =  async (conversationId) => {
                 }
             },
             {
+                $lookup : {
+                    from : "messages",
+                    let : {"messageId": "$replyTo"},
+                    pipeline : [
+                        { $match : { $expr : { $eq : ["$_id" , "$$messageId"]}}},
+                        {
+                            $lookup: 
+                            {
+                                from: 'users',
+                                let: {"senderId" : "$sender"},
+                                pipeline : [
+                                    { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}},
+                                    { $project: { "_id": 1, "avatar": 1, "lastname" : 1, "firstname" : 1}}
+                                ],
+                                as: "senderInfo"
+                            }
+                        }
+                    ],
+                    as : 'replyToInfo'
+                }
+            },
+            {
                 $project : 
                 {
                     _id : 1, recipients: 1, isFirst: 1, isNotify: 1, isReadBy: 1, conversation: 1,sender: 1,
-                    attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1
+                    attachment: 1, text: 1, createdAt: 1, senderInfo: 1, "isReadByInfo._id": 1, "isReadByInfo.avatar" : 1,
+                    replyTo: 1, replyToInfo: 1
                 }
             },
             {
@@ -111,8 +134,31 @@ MessageController.getPreMessages = async(conversationId, time) => {
             }
         },
         {
+            $lookup : {
+                from : "messages",
+                let : {"messageId": "$replyTo"},
+                pipeline : [
+                    { $match : { $expr : { $eq : ["$_id" , "$$messageId"]}}},
+                    {
+                        $lookup: 
+                        {
+                            from: 'users',
+                            let: {"senderId" : "$sender"},
+                            pipeline : [
+                                { $match : { $expr : { $eq: ["$_id", "$$senderId"]}}},
+                                { $project: { "_id": 1, "avatar": 1, "lastname" : 1, "firstname" : 1}}
+                            ],
+                            as: "senderInfo"
+                        }
+                    }
+                ],
+                as : 'replyToInfo'
+            }
+        },
+        {
             $project: 
             { "senderInfo.password": 0, "senderInfo.email": 0,"senderInfo.googleId": 0,"senderInfo.facebookId": 0,
+               
             }
         },
         {
@@ -139,7 +185,6 @@ MessageController.addMessage = async(message) => {
           
             newMessage = await Message.getMessageInfo(newMessage._id)
             currentConversation = await Conversation.getConversationInfo(message.conversation)
-
             return {message: newMessage, conversation: currentConversation}
 
        } catch (error) {

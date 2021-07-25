@@ -2,61 +2,36 @@ import store from '../../store';
 import getSocket from '../../socket';
  
 export const onGetAllConversations = (conversations) => {
-    try {
-        console.log(conversations.length)
         store.dispatch({ type: 'FETCH_CONVERSATIONS', payload: conversations})
-    } catch (error) {
-        console.log(error.message)
-    }
 };
 
 export const  onUpdateMessagesAndConversations = (data) => {
-    try {
-        console.log(data);
         store.dispatch({ type: "UPDATE_MESSAGES", payload: data.message});
         store.dispatch({ type: "UPDATE_CONVERSATIONS", payload: data.conversation});
-    } catch (error) {
-        console.log(error)
-    }
+       store.dispatch({ type: "UPDATE_CURRENT_CONVERSATION", payload: data.conversation });
 };
 
 export const onUpdateNewConversation = (data) => {
-    try {
         store.dispatch({ type: "UPDATE_CONVERSATIONS", payload: data.conversation});
         store.dispatch({ type: "SELECT_CONVERSATION", payload: data.conversation});
         store.dispatch({ type: "NEW_MESSAGE", payload: data.message })
         store.dispatch({ type: "VIEW_CHATFEED"});
-    
-    } catch (error) {
-        console.log(error.message)
-    }
 };
 
 export const onGetAllMessages = (messages) => {
-    try {
+        console.log(messages)
         store.dispatch({ type: 'FETCH_MESSAGES', payload: messages})
-    } catch (error) {
-        console.log(error.message)
-    }
 }
 export const onGetPreMessages = (messages) => {
-    try {
-        console.log('store.dispatch getPremessage')
-        store.dispatch({ type: 'FETCH_PRE_MESSAGES', payload: messages})
-    } catch (error) {
-        console.log(error.message)
-    }
+ store.dispatch({ type: 'FETCH_PRE_MESSAGES', payload: messages})
 }
 
 export const onUpdateConversationAfterMemberChange = (response) => {
-    try {
         store.dispatch({ type: "SELECT_CONVERSATION", payload: response.conversation});
         store.dispatch({ type: "UPDATE_CONVERSATION", payload: response.conversation})
         store.dispatch({ type: 'NOTIFY_MESSAGE', payload: response.message});
         store.dispatch({ type: 'VIEW_CHATFEED'});
-    } catch (error) {
-        console.log(error.message)
-    }
+
 }
 
 export const onUpdateConversationsAfterAdded = (response) => {
@@ -80,12 +55,8 @@ export const onGetUserStopTypingMessage = data => {
     store.dispatch({ type: "REMOVE_USER_TYPING", payload: data.userId})
 }
 
-export const onUpdateOnlineUsers = (users) => async(dispatch) => {
-    try {
-       dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
-    } catch (error) {
-       console.log(error, error.message);
-    }
+export const onUpdateOnlineUsers = (users) => {
+       store.dispatch({ type: "UPDATE_ONLINE_USERS", payload : users })
 }
 
 export const emitJoinRoomUserId = (userId) => {
