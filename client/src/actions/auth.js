@@ -5,7 +5,7 @@ export const signIn = (formData, history) => async (dispatch) => {
         const { data } = await api.signIn(formData);
        
         dispatch({ type: "AUTH", payload: data });
-        history.push('/chat');
+        history.push('/');
     } catch (error) {
         if (error.response) {
             dispatch({ type: "LOGIN_ERROR", payload: error.response.data.message })
@@ -19,7 +19,7 @@ export const signUp = (formData, history) => async (dispatch) => {
     try {
         const { data } = await api.signUp(formData);
         dispatch({ type: "AUTH", payload: data });
-        history.push('/chat');
+        history.push('/');
     } catch (error) {
         if (error.response) {
             dispatch({ type: "LOGIN_ERROR", payload: error.response.data.message })
@@ -34,7 +34,7 @@ export const signInWithGoogle = (tokenId, history) => async (dispatch) => {
     try {
         const { data } = await api.signInWithGoogle(tokenId);
         dispatch({ type: "AUTH", payload: data });
-        history.push('/chat');
+        history.push('/');
     } catch (error) {
         dispatch({ type: "ERROR_MESSAGE", payload: "Google Sign In was unsuccessful. Try again later" });
     }
@@ -43,7 +43,7 @@ export const signInWithFacebook = (accessToken, history) => async (dispatch) => 
     try {
         const { data } = await api.signInWithFacebook(accessToken);
         dispatch({ type: "AUTH", payload: data });
-        history.push('/chat');
+        history.push('/');
     } catch (error) {
         dispatch({ type: "ERROR_MESSAGE", payload: "Facebook Sign In was unsuccessful. Try again later" });
     }
@@ -51,7 +51,7 @@ export const signInWithFacebook = (accessToken, history) => async (dispatch) => 
 
 export const logout = (history) => async (dispatch) => {
     dispatch({ type: 'USER_LOGOUT' });
-    history.push('/');
+    history.push('/login');
 }
 
 export const loadProfile = (user) => async (dispatch) => {

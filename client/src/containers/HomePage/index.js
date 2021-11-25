@@ -27,7 +27,7 @@ const Home = () => {
     const matchSM = useMediaQuery('(max-width:900px)');
     const matchXS = useMediaQuery('(max-width:640px)');
 
-    
+    //const currentProfile = useSelector(state => state.auth).currentProfile;
     const user = JSON.parse(localStorage.getItem('profile'))?.result;
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -37,6 +37,17 @@ const Home = () => {
     const dispatch = useDispatch();
     const history = useHistory();
 
+ /*    useEffect(() => {
+        if(user?.id !== currentProfile?.id)
+        {
+            history.push("/")
+        }
+    }, [currentProfile?.id]);
+
+    function storageEventHandler() {
+ }
+        */
+   
     useEffect(() => {
         if(getSocket().disconnected) {
             getSocket().connect();
@@ -82,7 +93,7 @@ const Home = () => {
         </div>
 
     )
-    return  <Redirect to="/" />
+    return  <Redirect to="/login" />
 }
 
 export default Home;

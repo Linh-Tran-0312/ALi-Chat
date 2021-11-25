@@ -24,8 +24,13 @@ export const updateProfile = (id, formData) => async(dispatch) => {
         dispatch({ type: "FETCH_PROFILE", payload: data});
         dispatch({ type: "SET_PROFILE", payload: data})
         dispatch({type: "VIEW_PROFILE"});
+        dispatch({ type: "UPDATE_PROFILE_ERROR", payload: ""})
     } catch (error) {
         console.log(error);  
+        if(error.response)
+        {
+            dispatch({ type: "UPDATE_PROFILE_ERROR", payload: error.response.data.message})
+        }
     }
 }
 

@@ -10,14 +10,14 @@ const Chat = () => {
         configSocket();
     },[]);
     
-    return (  <Route  path="/chat" component={Home}/> 
+    return (  <Route  path="/" component={Home}/> 
     )
 }
 
 const App = () => {
     return(
             <Router>
-            <Route exact path="/" component={Auth}/>         
+            <Route exact path="/login" component={Auth}/>         
             <Chat />
             </Router>
     )

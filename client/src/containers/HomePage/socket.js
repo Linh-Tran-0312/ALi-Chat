@@ -19,7 +19,7 @@ export const onUpdateNewConversation = (data) => {
 };
 
 export const onGetAllMessages = (messages) => {
-        console.log(messages)
+    
         store.dispatch({ type: 'FETCH_MESSAGES', payload: messages})
 }
 export const onGetPreMessages = (messages) => {

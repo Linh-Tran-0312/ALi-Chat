@@ -205,7 +205,7 @@ UserController.updateProfile = async (req, res) => {
     
             return res.status(200).json(updatedUser);
         } else {
-            const updatedUser = await User.findByIdAndUpdate(id, { caption, email, lastname, firstname }, { new: true }).select({  _id : 1, caption: 1, email : 1, username: 1, lastname: 1, firstname: 1, avatar: 1});
+            const updatedUser = await User.findByIdAndUpdate(id, { caption, lastname, firstname }, { new: true }).select({  _id : 1, caption: 1, email : 1, username: 1, lastname: 1, firstname: 1, avatar: 1});
             return res.status(200).json(updatedUser);
         }
       
