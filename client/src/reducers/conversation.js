@@ -10,7 +10,7 @@ export default ( conversation = null, action) => {
             }
             return conversation;
         case "UPDATE_CURRENT_CONVERSATION": 
-        if(conversation._id === action.payload._id) 
+        if(conversation?._id === action.payload._id) 
         return action.payload;
         return conversation;
         default:
